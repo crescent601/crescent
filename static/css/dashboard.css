@@ -1,0 +1,27 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #f0f4f7, #d9e2ec);
+    margin: 0;
+    padding: 20px;
+}
+
+.dashboard-container {
+    max-width: 800px;
+    margin: auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1, h3 {
+    text-align: center;
+    color: #333;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px; /* ⬅ small chart */
+    width: 100%;
+    margin-top: 30px;
+}

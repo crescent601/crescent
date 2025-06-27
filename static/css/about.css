@@ -1,0 +1,117 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    letter-spacing: 0.2rem;
+  }
+  
+  html {
+    font-size: 62.5%; /* 10px base for easier rem calculations */
+  }
+  
+  button {
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 0.8rem 2.4rem;
+    line-height: 1.5;
+    cursor: pointer;
+    text-align: center;
+    border: 0.2rem solid rgba(200, 200, 200, 0.1);
+    border-radius: 0.7rem;
+    color: #dedede;
+    transition: all 0.3s ease;
+  }
+  
+  .about-section {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(to right, #08011c, #08132c);
+  }
+  
+  .container {
+    max-width: 132rem;
+    margin: 0 auto;
+    padding: 0 3.2rem;
+  }
+  
+  .grid {
+    display: grid;
+  }
+  
+  .grid-two-column {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.4rem;
+    padding: 3.6rem;
+  }
+  
+  .about-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2.8rem;
+  }
+  
+  .about-content h2 {
+    font-size: 4.6rem;
+    color: #dedede;
+  }
+  
+  .about-content h2 span {
+    color: #735feb;
+  }
+  
+  .about-content p {
+    font-size: 2rem;
+    color: aliceblue;
+    margin-bottom: 2.4rem;
+    word-break: break-all;
+  }
+  
+  .cv-btn {
+    background-color: #735feb;
+    margin-right: 1.2rem;
+  }
+  
+  .cv-btn:hover {
+    background-color: #735feb99;
+    border-color: rgba(200, 200, 200, 0.1);
+    box-shadow: 1px 3px 5px 2px rgba(255, 255, 255, 0.1);
+    transform: translateY(-0.5rem);
+  }
+  
+  .project-btn {
+    background-color: transparent;
+  }
+  
+  .project-btn:hover {
+    border-color: rgba(115, 95, 235, 0.1);
+    box-shadow: 1px 3px 5px 2px rgba(255, 255, 255, 0.1);
+    transform: translateY(-0.5rem);
+  }
+  
+  .about-image-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .about-image {
+    width: 40rem;
+    height: 40rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0.2rem solid rgba(200, 200, 200, 0.1);
+    border-radius: 50%;
+    box-shadow: 0 0 80px 20px rgba(255, 255, 255, 0.1);
+  }
+  
+  .about-image img {
+    width: 80%;
+    height: auto;
+  }
+  

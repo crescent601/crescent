@@ -1,0 +1,21 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <form method="post" class="form-box">
+            {% csrf_token %}
+            <h2 class="title">Register</h2>
+            {{ form.as_p }}
+            <button type="submit" class="submit-btn">Register</button>
+        </form>
+    </div>
+</body>
+</html>

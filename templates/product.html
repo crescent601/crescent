@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Our Products{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="products">
+    <h2>Our Product Range</h2>
+    <div class="product-grid">
+        <div class="product-item">
+            <img src="{% static 'images/bulb1.jpg' %}" alt="LED Bulb">
+            <h3>LED Bulb</h3>
+        </div>
+        <div class="product-item">
+            <img src="{% static 'images/panel1.jpg' %}" alt="Panel Light">
+            <h3>Panel Light</h3>
+        </div>
+        <!-- Add more products as needed -->
+    </div>
+</section>
+{% endblock %}

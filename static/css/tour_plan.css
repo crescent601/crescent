@@ -1,0 +1,31 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    margin-top: 40px;
+}
+
+table {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.form-select {
+    width: 200px;
+    margin: auto;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+
+.btn-submit {
+    margin-top: 20px;
+}

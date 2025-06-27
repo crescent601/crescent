@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Result</title>
+    </head>
+<body>
+    <h1>Your Quiz Result</h1>
+    <p>Your Score: {{ score|floatformat:2 }}%</p>
+
+    {% if passed %}
+        <p style="color: green;">Congratulations! You passed the quiz!</p>
+        {% if next_video %}
+            <p>Next Video: <a href="{% url 'video_detail' next_video.id %}">{{ next_video.title }}</a></p>
+        {% else %}
+            <p>You have completed all videos!</p>
+        {% endif %}
+    {% else %}
+        <p style="color: red;">Unfortunately, you did not pass. Please try again.</p>
+        <p><a href="{% url 'quiz_retake' video.id %}">Retake Quiz</a></p> {% endif %}
+
+    <p><a href="{% url 'some_dashboard_url' %}">Back to Dashboard</a></p>
+</body>
+</html>

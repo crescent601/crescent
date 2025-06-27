@@ -1,0 +1,237 @@
+/* forms.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f9;
+    color: #333;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+.form-container {
+    background-color: #fff;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+fieldset {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+legend {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4CAF50;
+    padding: 0 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input[type="text"], input[type="email"], input[type="date"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.errorlist {
+    color: #ff4d4d;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+button.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+button.submit-btn:hover {
+    background-color: #45a049;
+}
+
+form {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 15px;
+    }
+
+    button.submit-btn {
+        width: auto;
+    }
+}
+/* Updated CSS for a more modern form layout */
+form {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 600;
+    font-size: 1.1em;
+}
+input[type="text"],
+input[type="date"],
+input[type="email"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #4caf50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+textarea {
+    resize: vertical;
+    height: 120px;
+}
+button[type="submit"] {
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+button[type="submit"]:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+.errorlist {
+    color: #d32f2f;
+    font-size: 0.9em;
+    margin-top: 5px;
+    padding: 8px;
+    background-color: #ffe0e0;
+    border-radius: 4px;
+    border: 1px solid #ffb3b3;
+}
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 1em;
+}
+.alert-success {
+    background-color: #e6f4ec;
+    color: #1b5e20;
+    border-color: #c8e6c9;
+}
+.alert-danger {
+    background-color: #ffebee;
+    color: #b71c1c;
+    border-color: #f4caca;
+}
+
+/* CSS for Family Details Section */
+.family-details {
+    background-color: #f9f9f9;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+.family-details h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.5em;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+.family-details .form-group {
+    margin-bottom: 15px;
+}
+.family-details label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-weight: 600;
+    font-size: 1em;
+}
+.family-details input[type="text"],
+.family-details input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static%}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About page</title>
+    <link rel="stylesheet" href="{% static 'css/about.css' %}">
+  </head>
+  <body>
+    <section class="about-section">
+      <div class="container">
+        <div class="grid grid-two-column">
+          <div class="about-content">
+            <h2><span>Hello, I'm</span><br />Bhargav Kathiriya</h2>
+            <p>
+              Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+              Reprehenderit porro perferendis quos beatae corporis voluptates ea
+              excepturi. Error corporis perferendis sunt assumenda neque! Quam
+              voluptatibus quo, ducimus facilis in voluptate reprehenderit, illo
+              molestias tempora minus eos tenetur itaque repellendus iure nihil
+              dolore sit, velit quaerat nulla culpa? Culpa, quasi facere!
+            </p>
+            <div class="about-btn">
+              <button class="cv-btn">Download CV</button>
+              <button class="project-btn">View Project</button>
+            </div>
+          </div>
+
+          <div class="about-image-content">
+            <div class="about-image">
+                <img src="{% static 'images/cmd.png' %}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

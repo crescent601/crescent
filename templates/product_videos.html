@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/product_videos.css' %}">
+{% endblock %}
+
+{% block title %}{{ product_training.title }} - Videos{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>{{ product_training.title }} Trainings</h1>
+  <div class="video-grid">
+    <!-- Sidebar -->
+    <div class="video-list-sidebar">
+      <ul>
+        {% for video in product_training.videos.all %}
+        <li class="video-link {% if forloop.first %}active{% endif %} {% if video.id not in unlocked_video_ids %}locked{% endif %}"
+            data-video-id="{{ video.id }}">
+          {{ video.title }} {% if video.id not in unlocked_video_ids %}(Locked){% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Content -->
+    <div class="video-content">
+      {% for video in product_training.videos.all %}
+      <div id="video-{{ video.id }}" class="video-player {% if not forloop.first %}hidden{% endif %}">
+        {% if video.get_embed_url %}
+        <iframe width="800" height="340" src="{{ video.get_embed_url }}" title="{{ video.title }}"
+                frameborder="0" allowfullscreen></iframe>
+        {% else %}
+        <p class="text-danger">Invalid or missing video URL.</p>
+        {% endif %}
+
+        <!-- Quiz Section -->
+        {% if video.id in unlocked_video_ids %}
+        <form method="POST" action="{% url 'submit_quiz' video.id %}" class="quiz-form" id="quiz-form-{{ video.id }}">
+          {% csrf_token %}
+          <h3>Quiz for {{ video.title }}</h3>
+          {% for question in video.questions.all %}
+          <div class="question-block">
+            <p><strong>{{ forloop.counter }}. {{ question.question_text }}</strong></p>
+            {% for answer in question.answers.all %}
+            <label><input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" required />
+              {{ answer.answer_text }}
+            </label><br />
+            {% endfor %}
+          </div>
+          {% endfor %}
+          <button type="submit">Submit Quiz</button>
+        </form>
+        {% endif %}
+
+        <!-- Result Section -->
+        {% if video.id in result_map %}
+        <div class="quiz-result">
+          <p><strong>Score:</strong> {{ result_map.video.id.score }}%</p>
+          {% if result_map.video.id.score %}
+          <p style="color: green;">✅ Passed</p>
+          {% else %}
+          <p style="color: red;">❌ Not Passed</p>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/product_videos.js' %}"></script>
+{% endblock %}

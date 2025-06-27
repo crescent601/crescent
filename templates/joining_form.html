@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crescent Lighting</title>
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Crescent Joining Form</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Display Errors -->
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Please correct the errors below:</strong>
+                    <ul>
+                        {% for field in form %}
+                            {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Personal Information Section -->
+            <fieldset>
+                <legend>Personal Information</legend>
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">First Name:</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="errorlist">{{ form.first_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.middle_name.id_for_label }}">Middle Name:</label>
+                    {{ form.middle_name }}
+                    {% if form.middle_name.errors %}
+                        <div class="errorlist">{{ form.middle_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">Last Name:</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="errorlist">{{ form.last_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth:</label>
+                    {{ form.date_of_birth }}
+                    {% if form.date_of_birth.errors %}
+                        <div class="errorlist">{{ form.date_of_birth.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.gender.id_for_label }}">Gender:</label>
+                    <select id="{{ form.gender.id_for_label }}" name="{{ form.gender.name }}" class="form-control">
+                        <option value="">Select Gender</option>
+                        <option value="Male" {% if form.gender.value == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if form.gender.value == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if form.gender.value == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                    {% if form.gender.errors %}
+                        <div class="errorlist">{{ form.gender.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </fieldset>
+                        <div class="form-group family-details">
+            <h2>Family Details</h2>
+            <div class="form-group">
+                <label for="father_name">Father's Name:</label>
+                <input type="text" id="father_name" name="father_name">
+            </div>
+            <div class="form-group">
+                <label for="father_dob">Father's Date of Birth:</label>
+                <input type="date" id="father_dob" name="father_dob">
+            </div>
+            <div class="form-group">
+                <label for="father_occupation">Father's Occupation:</label>
+                <input type="text" id="father_occupation" name="father_occupation">
+            </div>
+
+            <div class="form-group">
+                <label for="mother_name">Mother's Name:</label>
+                <input type="text" id="mother_name" name="mother_name">
+            </div>
+            <div class="form-group">
+                <label for="mother_dob">Mother's Date of Birth:</label>
+                <input type="date" id="mother_dob" name="mother_dob">
+            </div>
+            <div class="form-group">
+                <label for="mother_occupation">Mother's Occupation:</label>
+                <input type="text" id="mother_occupation" name="mother_occupation">
+            </div>
+
+            <div class="form-group">
+                <label for="spouse_name">Spouse's Name:</label>
+                <input type="text" id="spouse_name" name="spouse_name">
+            </div>
+            <div class="form-group">
+                <label for="spouse_dob">Spouse's Date of Birth:</label>
+                <input type="date" id="spouse_dob" name="spouse_dob">
+            </div>
+            <div class="form-group">
+                <label for="spouse_occupation">Spouse's Occupation:</label>
+                <input type="text" id="spouse_occupation" name="spouse_occupation">
+            </div>
+
+            <div class="form-group">
+                <label for="children1_name">Child 1 Name:</label>
+                <input type="text" id="children1_name" name="children1_name">
+            </div>
+            <div class="form-group">
+                <label for="children1_dob">Child 1 Date of Birth:</label>
+                <input type="date" id="children1_dob" name="children1_dob">
+            </div>
+            <div class="form-group">
+                <label for="children1_occupation">Child 1 Occupation:</label>
+                <input type="text" id="children1_occupation" name="children1_occupation">
+            </div>
+        </div>
+
+            <!-- Contact Information Section -->
+            <fieldset>
+                <legend>Contact Information</legend>
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email:</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="errorlist">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.mobile_number.id_for_label }}">Mobile Number:</label>
+                    {{ form.mobile_number }}
+                    {% if form.mobile_number.errors %}
+                        <div class="errorlist">{{ form.mobile_number.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.permanent_address.id_for_label }}">Permanent Address:</label>
+                    {{ form.permanent_address }}
+                    {% if form.permanent_address.errors %}
+                        <div class="errorlist">{{ form.permanent_address.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.permanent_landline.id_for_label }}">Permanent Landline:</label>
+                    {{ form.permanent_landline }}
+                    {% if form.permanent_landline.errors %}
+                        <div class="errorlist">{{ form.permanent_landline.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </fieldset>
+
+            <!-- Education Information Section -->
+            <fieldset>
+                <legend>Education Information</legend>
+                <div class="form-group">
+                    <label for="{{ form.academic_qualification.id_for_label }}">Academic Qualification:</label>
+                    {{ form.academic_qualification }}
+                    {% if form.academic_qualification.errors %}
+                        <div class="errorlist">{{ form.academic_qualification.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.gaps_in_education.id_for_label }}">Gaps in Education:</label>
+                    {{ form.gaps_in_education }}
+                    {% if form.gaps_in_education.errors %}
+                        <div class="errorlist">{{ form.gaps_in_education.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </fieldset>
+
+            <!-- Professional Information Section -->
+            <fieldset>
+                <legend>Professional Information</legend>
+                <div class="form-group">
+                    <label for="{{ form.professional_experience.id_for_label }}">Professional Experience:</label>
+                    {{ form.professional_experience }}
+                    {% if form.professional_experience.errors %}
+                        <div class="errorlist">{{ form.professional_experience.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.total_work_experience.id_for_label }}">Total Work Experience:</label>
+                    {{ form.total_work_experience }}
+                    {% if form.total_work_experience.errors %}
+                        <div class="errorlist">{{ form.total_work_experience.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.gaps_in_work_experience.id_for_label }}">Gaps in Work Experience:</label>
+                    {{ form.gaps_in_work_experience }}
+                    {% if form.gaps_in_work_experience.errors %}
+                        <div class="errorlist">{{ form.gaps_in_work_experience.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </fieldset>
+
+            <!-- Other Information Section -->
+            <fieldset>
+                <legend>Other Information</legend>
+                <div class="form-group">
+                    <label for="{{ form.pan_card.id_for_label }}">PAN Card:</label>
+                    {{ form.pan_card }}
+                    {% if form.pan_card.errors %}
+                        <div class="errorlist">{{ form.pan_card.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.marital_status.id_for_label }}">Marital Status:</label>
+                    {{ form.marital_status }}
+                    {% if form.marital_status.errors %}
+                        <div class="errorlist">{{ form.marital_status.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.blood_group.id_for_label }}">Blood Group:</label>
+                    {{ form.blood_group }}
+                    {% if form.blood_group.errors %}
+                        <div class="errorlist">{{ form.blood_group.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </fieldset>
+
+            <!-- Declaration Section -->
+            <fieldset>
+                <legend>Declaration</legend>
+                <div class="form-group">
+                    <label for="{{ form.declaration.id_for_label }}">Declaration:</label>
+                    {{ form.declaration }}
+                    {% if form.declaration.errors %}
+                        <div class="errorlist">{{ form.declaration.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </fieldset>
+
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

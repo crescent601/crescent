@@ -1,0 +1,130 @@
+/* Basic Reset */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Custom Slider Styles */
+.custom-slider {
+    position: relative;
+    color: aqua;
+    width: 100%;
+    max-height: 400px;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    margin-bottom: 40px;
+}
+
+.slides {
+    display: flex;
+    transition: transform 0.8s ease-in-out;
+}
+
+.slide {
+    min-width: 100%;
+    height: 400px;
+    background-size: cover;
+    background-position: left;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.slide.active {
+    opacity: 1;
+    position: relative;
+}
+
+
+/* Navigation Buttons */
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    padding: 16px;
+    background-color: rgba(0,0,0,0.5);
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    transition: background 0.3s;
+}
+
+.prev:hover, .next:hover {
+    background-color: rgba(0,0,0,0.7);
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Product Training Section */
+.product-training-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    animation: fadeIn 1s ease-in;
+}
+
+.caption animate-text {
+    color: rgb(116, 79, 30);
+    
+}
+
+.training-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: slideUp 0.8s ease-in-out;
+}
+
+.training-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.training-card img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* Animation Keyframes */
+@keyframes slideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

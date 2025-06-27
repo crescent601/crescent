@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Basic styling for the dashboard container */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font as per guidelines */
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align items to the top */
+            min-height: 100vh;
+        }
+        .dashboard-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px; /* Rounded corners */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px; /* Max width for better readability */
+            text-align: center;
+            margin-bottom: 30px; /* Space at the bottom */
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        h3 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .chart-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px; /* Rounded corners for chart containers */
+            box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05);
+        }
+        canvas {
+            max-width: 100%; /* Ensure canvas is responsive */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Remove extra space below canvas */
+            margin: 0 auto; /* Center the canvas */
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h3 {
+                font-size: 1.2em;
+            }
+            .chart-container {
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Welcome to Your Dashboard</h1>
+        <h3>Total Final Amount: ₹{{ total_final|floatformat:2 }}</h3>
+
+        <div class="chart-container">
+            <h3>Monthly Expense Summary</h3>
+            <canvas id="finalChart"></canvas>
+        </div>
+
+        <div class="chart-container" style="margin-top: 50px;">
+            <h3>Tour Plans per Territory</h3>
+            <canvas id="territoryChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Define global variables to hold the chart data.
+        // These variables will be accessible from dashboard.js
+        window.globalChartData = JSON.parse('{{ chart_data|escapejs }}');
+        window.globalTerritoryData = JSON.parse('{{ territory_chart_data|escapejs }}');
+    </script>
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html>
