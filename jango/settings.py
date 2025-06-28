@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-q=3!^c^x89)^m)b!)rr!ub_&zo1udcobfz8kgaj!br8swkxyl5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['crescent-app.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['crescent-app.onrender.com', '127.0.0.1', 'localhost']
 
 
 
