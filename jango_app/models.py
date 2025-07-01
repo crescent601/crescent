@@ -60,7 +60,7 @@ class ProductTraining(models.Model):
 
     def __str__(self):
         return self.title
-
+    
 
 class ProductVideo(models.Model):
     product_training = models.ForeignKey(ProductTraining, related_name='videos', on_delete=models.CASCADE)
