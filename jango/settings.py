@@ -136,4 +136,36 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MASTER_SHEET_ID = "1m9kWKw6DVP7jPptcGvLiMK1NrD4ykqLwJC5ZdI63Ri8"
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO', # या 'DEBUG' भी कर सकते हैं अगर बहुत ज्यादा verbose चाहिए
+        },
+        'django.request': { # HTTP requests को लॉग करने के लिए
+            'handlers': ['console'],
+            'level': 'DEBUG', # DEBUG level पर सेट करें ताकि POST data भी दिखे
+            'propagate': False,
+        },
+        'django.db.backends': { # Database queries को लॉग करने के लिए (ज़रूरत पड़ने पर)
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    }
+}
+# -------------------------------------------------------------
+# End of temporary LOGGING configuration
+# -------------------------------------------------------------
 
