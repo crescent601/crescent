@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path , include
 
 urlpatterns = [
-    path('admin-us/', admin.site.urls),
+   # path('admin-us/', admin.site.urls),
+    path('super-admin-login-test/', admin.site.urls),
     path('', include('jango_app.urls')),
     path('accounts/', include('django.contrib.auth.urls')),  # for login/logout     
     
