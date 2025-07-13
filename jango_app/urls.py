@@ -11,9 +11,10 @@ urlpatterns = [
     path('home/dashboard/', dashboard_view, name='dashboard'),
     path('home/forms/', joining_form_view, name='forms'),
     path('/', register_user, name='register'),
-    path('accounts/login', login_user, name='login'),
+    path('accounts/login/', login_user, name='login'),
     path('product/<int:product_id>/videos/', product_videos, name='product_videos'),
     path('product/video/<int:video_id>/submit_quiz/', submit_quiz, name='submit_quiz'),
     path('home/tour/', submit_tour_plan, name='tour'),
+    
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
