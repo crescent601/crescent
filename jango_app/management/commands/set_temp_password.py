@@ -7,11 +7,18 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         User = get_user_model()
-        username = 'adminuser'  # अपना सुपरयूज़र यूजरनेम
-        password = 'adminuser@123' # अपना डिफ़ॉल्ट पासवर्ड
+        username = 'adminuser'  # Your desired superuser username
+        password = 'adminuser@123' # Your desired default password
 
         try:
             user = User.objects.get(username=username)
+            # Ensure the user is a staff and superuser
+            if not user.is_staff or not user.is_superuser:
+                user.is_staff = True
+                user.is_superuser = True
+                user.save()
+                self.stdout.write(self.style.WARNING(f'User "{username}" was not staff/superuser, updated.'))
+            
             user.set_password(password)
             user.save()
             self.stdout.write(self.style.SUCCESS(f'Successfully set password for user "{username}"'))
