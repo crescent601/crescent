@@ -1,1 +1,2 @@
+release: python manage.py migrate --noinput && python manage.py createsuperuser --noinput --username adminuser --email admin@example.com || true && python manage.py set_temp_password || true
 web: gunicorn jango.wsgi:application --log-file -
