@@ -15,6 +15,11 @@
             <h2 class="title">Register</h2>
             {{ form.as_p }}
             <button type="submit" class="submit-btn">Register</button>
+            <div class="text-center mt-3">
+            <p>Already have an account?
+                <a href="{% url 'login' %}" class="text-decoration-none fw-bold">Login here</a>
+            </p>
+            </div>
         </form>
     </div>
 </body>
