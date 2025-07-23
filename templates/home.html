@@ -6,8 +6,9 @@
 <div class="custom-slider">
     <div class="slides">
         {% for post in all_posts_list %}
-            {% if post.Scroll_image %}
-                <div class="slide {% if forloop.first %}active{% endif %}" style="background-image: url('{{ post.Scroll_image.url }}');">
+            {# Check if Scroll_image_url exists and is not empty #}
+            {% if post.Scroll_image_url %}
+                <div class="slide {% if forloop.first %}active{% endif %}" style="background-image: url('{{ post.Scroll_image_url }}');">
                     <div class="caption animate-text">{{ post.text|truncatewords:15 }}</div>
                 </div>
             {% endif %}
@@ -16,6 +17,27 @@
     <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
     <button class="next" onclick="moveSlide(1)">&#10095;</button>
 </div>
+
+<h2 class="text-center my-4">Product Trainings</h2>
+<div class="product-training-section">
+    {% for training in trainings %}
+        <div class="training-card cat-{{ training.category.id }}">
+
+            <p><strong>Category:</strong> {{ training.category.name }}</p>
+            <p>{{ training.description }}</p>
+            {% if training.featured_image %}
+                <a href="{% url 'product_videos' training.id %}">
+                    <img src="{{ training.featured_image.url }}" alt="{{ training.title }}">
+                </a>
+            {% endif %}
+            <p><em>Created at: {{ training.created_at }}</em></p>
+        </div>
+    {% empty %}
+        <p>No product trainings available.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
 
 <h2 class="text-center my-4">Product Trainings</h2>
 <div class="product-training-section">

@@ -4,9 +4,9 @@
 __pycache__/
 *.pyc
 # Media files (user uploads) - these should NOT be in Git
-/media/
+#/media/
 # Collected static files - often generated, not source code
-/staticfiles/
+#/staticfiles/
 # Large binary files that might have been committed accidentally
 *.zip
 *.rar

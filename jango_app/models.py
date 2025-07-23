@@ -15,7 +15,12 @@ class Categories(models.Model):
 # Main Posts (if needed for homepage scrolling content)
 class Post(models.Model):
     text = models.TextField()
-    Scroll_image = models.ImageField(upload_to="Media/fetured_img", null=True)
+    # Change ImageField to URLField to store the Google Drive link
+    Scroll_image_url = models.URLField(
+        max_length=500,  # Set an appropriate max_length for URLs
+        blank=True,      # Allow the field to be blank in forms
+        null=True        # Allow the field to be NULL in the database
+    )
 
     def __str__(self):
         return self.text[:50]
