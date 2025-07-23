@@ -1,0 +1,94 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #343a40;
+    margin-bottom: 30px;
+}
+
+/* Product Video Section */
+.video-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.video-card {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    width: 300px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.video-card:hover {
+    transform: scale(1.03);
+}
+
+.video-card video {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.video-card h3 {
+    margin-top: 10px;
+    font-size: 18px;
+    color: #495057;
+}
+
+/* Quiz Button */
+.quiz-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.quiz-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Lock Overlay (if used) */
+.locked {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.locked::after {
+    content: "\f023"; /* FontAwesome lock icon */
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    font-size: 32px;
+    color: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .video-list {
+        flex-direction: column;
+        align-items: center;
+    }
+}

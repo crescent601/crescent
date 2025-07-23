@@ -1,0 +1,102 @@
+/* Reset default margin and padding */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #e6f1fb; /* Soft blue background */
+    position: relative;
+}
+
+/* Curved background using pseudo-element */
+body::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -300px;
+    width: 1000px;
+    height: 1000px;
+    background: #b6d5f2;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+/* Login container layout */
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1300px;
+    margin: 80px auto;
+    padding: 20px;
+    flex-wrap: wrap;
+}
+
+/* Left welcome text */
+.welcome-text {
+    max-width: 50%;
+    color: #1b2a5e;
+    font-size: 18px;
+}
+
+/* Login card styling */
+form {
+    background-color: #ffffffd9;
+    padding: 40px;
+    border-radius: 25px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+    width: 380px;
+    margin-left: auto;
+    border: #1b2a5e;
+    opacity: 8;
+    z-index: 1;
+}
+
+/* Headings and inputs */
+form h4 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 22px;
+    color: #1b2a5e;
+}
+
+.form-control {
+    background: #f5f5f5;
+    border: none;
+    border-left: 4px solid #1b2a5e;
+    padding: 12px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    width: 100%;
+}
+
+/* Buttons and links */
+.btn-primary {
+    background-color: #0a2c6b;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 25px;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: #0d3a8b;
+}
+
+a.text-decoration-none {
+    font-size: 14px;
+    color: #1b2a5e;
+    float: right;
+}
+
+/* Social icons */
+.text-center img {
+    height: 36px;
+    margin: 0 8px;
+    transition: transform 0.3s;
+}
+
+.text-center img:hover {
+    transform: scale(1.1);
+}
