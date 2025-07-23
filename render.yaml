@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: crescent-app
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn jango.wsgi:application --log-file -
+    staticPublishPath: staticfiles
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: jango.settings
+      - key: PYTHON_VERSION
+        value: 3.10
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
