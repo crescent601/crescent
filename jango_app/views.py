@@ -281,34 +281,77 @@ def product_videos(request, product_id):
     })
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import ProductVideo, VideoQuestion, VideoAnswer, UserVideoQuizResult, UserVideoUnlock, UserCategoryProgress # सुनिश्चित करें कि ये सभी मॉडल यहां इम्पोर्टेड हैं
+
+@login_required
 def submit_quiz(request, video_id):
-    video = get_object_or_404(ProductVideo, id=video_id)  # Correct model here
+    video = get_object_or_404(ProductVideo, id=video_id)
     questions = VideoQuestion.objects.filter(video=video)
     score = 0
-    total = questions.count()
+    total_questions = questions.count()
+    all_answers_correct = True # नया फ्लैग
 
-    for question in questions:
-        selected_answer_id = request.POST.get(f'question_{question.id}')
-        if selected_answer_id:
-            selected_answer = VideoAnswer.objects.filter(id=selected_answer_id, is_correct=True).first()
-            if selected_answer:
-                score += 1
+    if request.method == 'POST':
+        for question in questions:
+            selected_answer_id = request.POST.get(f'question_{question.id}')
+            if selected_answer_id:
+                try:
+                    selected_answer = VideoAnswer.objects.get(id=selected_answer_id, question=question)
+                    if selected_answer.is_correct:
+                        score += 1
+                    else:
+                        all_answers_correct = False # एक भी गलत उत्तर, तो फ्लैग फॉल्स
+                except VideoAnswer.DoesNotExist:
+                    all_answers_correct = False # यदि कोई उत्तर नहीं चुना गया या अमान्य आईडी, तो भी गलत
 
-    percentage = (score / total) * 100 if total > 0 else 0
-    UserVideoQuizResult.objects.update_or_create(
-        user=request.user, video=video,
-        defaults={'score': percentage, 'completed': True, 'passed': percentage >= 70}
-    )
+        percentage = (score / total_questions) * 100 if total_questions > 0 else 0
 
-    # Unlock next video if passed
-    if percentage >= 70:
-        next_video = ProductVideo.objects.filter(
-            product_training=video.product_training,
-            id__gt=video.id
-        ).order_by('id').first()
-        if next_video:
-            UserVideoUnlock.objects.get_or_create(user=request.user, video=next_video)
+        # UserVideoQuizResult को अपडेट या बनाएं
+        user_quiz_result, created = UserVideoQuizResult.objects.update_or_create(
+            user=request.user,
+            video=video,
+            defaults={
+                'score': percentage,
+                'completed': True, # क्विज़ सबमिट हो गया है
+                'passed': all_answers_correct # पास तभी जब सारे उत्तर सही हों
+            }
+        )
+
+        # यदि सारे उत्तर सही हैं और पास हो गया
+        if all_answers_correct:
+            messages.success(request, 'Congratulations! You passed the quiz. The next video is unlocked.')
+
+            # अगला वीडियो अनलॉक करें
+            next_video = ProductVideo.objects.filter(
+                product_training=video.product_training,
+                order__gt=video.order # 'order' फील्ड का उपयोग करें, id__gt के बजाय
+            ).order_by('order').first()
+
+            if next_video:
+                UserVideoUnlock.objects.get_or_create(user=request.user, video=next_video)
+            else:
+                # यदि कोई अगला वीडियो नहीं है, तो पूरी कैटेगरी को 'completed' मार्क करें (या जैसा भी आपका लॉजिक हो)
+                # सुनिश्चित करें कि UserCategoryProgress मॉडल मौजूद है और category फील्ड सही है
+                # (यह आपके models.py में ProductTraining.category से संबंधित होना चाहिए)
+                try:
+                    UserCategoryProgress.objects.get_or_create(
+                        user=request.user,
+                        category=video.product_training.category # यहां category ऑब्जेक्ट पास करें
+                    )
+                    messages.info(request, 'You have completed all videos in this training category!')
+                except AttributeError:
+                    # यदि ProductTraining का category एट्रीब्यूट नहीं है या UserCategoryProgress नहीं है
+                    messages.warning(request, 'All videos completed, but category progress could not be updated.')
+
         else:
-            UserCategoryProgress.objects.get_or_create(user=request.user, category=video.product_training.category) # type: ignore
+            # यदि सारे उत्तर सही नहीं हैं
+            messages.error(request, 'Incorrect answers. Please review the video and try the quiz again.')
 
+        # क्विज़ सबमिट होने के बाद हमेशा वीडियो लिस्ट पेज पर रीडायरेक्ट करें
+        return redirect('product_videos', product_id=video.product_training.id)
+
+    # यदि GET अनुरोध है (सीधे URL पर नेविगेट किया गया)
+    messages.error(request, 'Invalid request method for quiz submission.')
     return redirect('product_videos', product_id=video.product_training.id)

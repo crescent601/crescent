@@ -121,12 +121,22 @@ class JoiningApplication(models.Model):
 
 # Qualification Proofs for each application
 class QualificationProof(models.Model):
-    joining_application = models.ForeignKey(JoiningApplication, related_name='qualification_proofs', on_delete=models.CASCADE)
-    file = models.FileField(upload_to='qualification_proofs/')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    qualification = models.CharField(max_length=255)
+    file = models.FileField(upload_to='qualification_proofs/', blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    # Add this ForeignKey field:
+    joining_application = models.ForeignKey(
+        JoiningApplication,
+        on_delete=models.CASCADE,
+        related_name='qualification_proofs', # You can choose a different related_name
+        blank=True, # Make it optional if a QualificationProof can exist without a direct link to JoiningApplication initially
+        null=True   # Make it optional if a QualificationProof can exist without a direct link to JoiningApplication initially
+    )
 
     def __str__(self):
-        return f"Qualification Proof for {self.joining_application.first_name} {self.joining_application.last_name}"
-
+        return f"{self.user.username}'s {self.qualification} Proof"
 
 # Mapping Users to Territories
 class UserTerritory(models.Model):
