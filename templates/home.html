@@ -25,9 +25,9 @@
 
             <p><strong>Category:</strong> {{ training.category.name }}</p>
             <p>{{ training.description }}</p>
-            {% if training.featured_image %}
+            {% if training.featured_image_url %} {# <--- यहाँ बदलाव है: अब featured_image_url का उपयोग करें #}
                 <a href="{% url 'product_videos' training.id %}">
-                    <img src="{{ training.featured_image.url }}" alt="{{ training.title }}">
+                    <img src="{{ training.featured_image_url }}" alt="{{ training.title }}"> {# <--- यहाँ भी बदलाव है: .url हटा दें #}
                 </a>
             {% endif %}
             <p><em>Created at: {{ training.created_at }}</em></p>
