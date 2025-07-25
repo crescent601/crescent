@@ -10,6 +10,7 @@ class Categories(models.Model):
 
     class Meta:
         ordering = ['order']
+        verbose_name_plural = "Categories" # Added for better admin display
 
 
 # Main Posts (if needed for homepage scrolling content)
@@ -19,11 +20,15 @@ class Post(models.Model):
     Scroll_image_url = models.URLField(
         max_length=500,  # Set an appropriate max_length for URLs
         blank=True,      # Allow the field to be blank in forms
-        null=True        # Allow the field to be NULL in the database
+        null=True,       # Allow the field to be NULL in the database
+        verbose_name="Scroll Image URL" # Added for better admin display
     )
 
     def __str__(self):
         return self.text[:50]
+    
+    class Meta:
+        verbose_name_plural = "Posts" # Added for better admin display
 
 
 # Territories for tour planning and user mapping
@@ -32,6 +37,9 @@ class Territory(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name_plural = "Territories" # Added for better admin display
 
 
 # User Profile with roles and multiple territories
@@ -47,6 +55,9 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
+    
+    class Meta:
+        verbose_name_plural = "Profiles" # Added for better admin display
 
 
 # Product Training with category
@@ -55,7 +66,14 @@ class ProductTraining(models.Model):
         ('PUBLISH', 'PUBLISH'),
         ('DRAFT', 'DRAFT'),
     )
-    featured_image = models.ImageField(upload_to="Media/fetured_img", null=True)
+    # --- CHANGED FROM ImageField TO URLField ---
+    featured_image_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="Featured Image URL" # Changed from featured_image
+    )
+    # ---------------------------------------------
     title = models.CharField(max_length=500)
     created_at = models.DateField(auto_now_add=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE)
@@ -66,6 +84,8 @@ class ProductTraining(models.Model):
     def __str__(self):
         return self.title
     
+    class Meta:
+        verbose_name_plural = "Product Trainings" # Added for better admin display
 
 class ProductVideo(models.Model):
     product_training = models.ForeignKey(ProductTraining, related_name='videos', on_delete=models.CASCADE)
@@ -78,6 +98,7 @@ class ProductVideo(models.Model):
 
     class Meta:
         ordering = ['order']
+        verbose_name_plural = "Product Videos" # Added for better admin display
 
     # --- ADD THIS NEW METHOD ---
     def get_youtube_video_id(self):
@@ -100,7 +121,8 @@ class ProductVideo(models.Model):
         """
         video_id = self.get_youtube_video_id()
         if video_id:
-            return f"https://www.youtube.com/embed/{video_id}?rel=0" # rel=0 prevents related videos
+            # Using standard YouTube embed URL. Note the `?rel=0` to prevent related videos.
+            return f"https://www.youtube.com/embed/{video_id}?rel=0"
         return None
 
 
@@ -116,15 +138,28 @@ class JoiningApplication(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+    
+    class Meta:
+        verbose_name_plural = "Joining Applications" # Added for better admin display
 
 
 # Qualification Proofs for each application
 class QualificationProof(models.Model):
     joining_application = models.ForeignKey(JoiningApplication, related_name='qualification_proofs', on_delete=models.CASCADE)
-    file = models.FileField(upload_to='qualification_proofs/')
+    # --- CHANGED FROM FileField TO URLField ---
+    file_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="File URL" # Changed from file
+    )
+    # -------------------------------------------
 
     def __str__(self):
         return f"Qualification Proof for {self.joining_application.first_name} {self.joining_application.last_name}"
+    
+    class Meta:
+        verbose_name_plural = "Qualification Proofs" # Added for better admin display
 
 
 # Mapping Users to Territories
@@ -134,6 +169,9 @@ class UserTerritory(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.territory.name}"
+    
+    class Meta:
+        verbose_name_plural = "User Territories" # Added for better admin display
 
 
 # Tour Plan (user visits in territories)
@@ -144,6 +182,9 @@ class TourPlan(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.date} - {self.territory.name}"
+    
+    class Meta:
+        verbose_name_plural = "Tour Plans" # Added for better admin display
 
 
 # Quiz: Questions for each video
@@ -154,6 +195,9 @@ class VideoQuestion(models.Model):
 
     def __str__(self):
         return self.question_text
+    
+    class Meta:
+        verbose_name_plural = "Video Questions" # Added for better admin display
 
 
 # Answers for each question
@@ -164,6 +208,9 @@ class VideoAnswer(models.Model):
 
     def __str__(self):
         return self.answer_text
+    
+    class Meta:
+        verbose_name_plural = "Video Answers" # Added for better admin display
 
 
 # User's result for each video quiz
@@ -179,6 +226,7 @@ class UserVideoQuizResult(models.Model):
 
     class Meta:
         unique_together = ('user', 'video')
+        verbose_name_plural = "User Video Quiz Results" # Added for better admin display
 
     def __str__(self):
         return f"{self.user.username} - {self.video.title} - {self.score}/{self.total_questions}"
