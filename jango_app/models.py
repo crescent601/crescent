@@ -55,8 +55,17 @@ class ProductTraining(models.Model):
         ('PUBLISH', 'PUBLISH'),
         ('DRAFT', 'DRAFT'),
     )
-    featured_image = models.ImageField(upload_to="Media/fetured_img", null=True)
+    featured_image_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="Featured Image URL"
+    )
     title = models.CharField(max_length=500)
+    # Temporary comment for Git test
+    # --- Start Git Test Change ---
+    # This is a test comment to ensure Git push works.
+    # --- End Git Test Change ---
     created_at = models.DateField(auto_now_add=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE)
     description = models.TextField()
@@ -65,6 +74,9 @@ class ProductTraining(models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name_plural = "Product Trainings"
     
 
 class ProductVideo(models.Model):
