@@ -2,8 +2,9 @@
 {% load static %}
 
 {% block extra_head %}
+    {# product_videos.css को यहाँ लोड करें क्योंकि यह CSS है और हेड में होना चाहिए। #}
     <link rel="stylesheet" href="{% static 'css/product_videos.css' %}">
-    {# The YouTube API script is now loaded in base.html at the end of the body #}
+    {# YouTube API स्क्रिप्ट को यहाँ से हटा दिया गया है। यह अब base.html में लोड होगा। #}
     {# <script src="https://www.youtube.com/iframe_api"></script> -- REMOVED FROM HERE #}
 {% endblock %}
 
@@ -70,8 +71,13 @@
         </div>
     </div>
 </div>
+{# content ब्लॉक के अंदर से product_videos.js को हटा दिया गया है। #}
+{# यह अब base.html के extra_scripts ब्लॉक में लोड होगा। #}
+{# <script src="{% static 'js/product_videos.js' %}"></script> -- MOVED TO base.html #}
+{% endblock %}
+
 {% block extra_scripts %}
+    {# product_videos.js को base.html के extra_scripts ब्लॉक में लोड करें। #}
+    {# यह YouTube API स्क्रिप्ट के लोड होने के बाद चलेगा। #}
     <script src="{% static 'js/product_videos.js' %}"></script>
 {% endblock %}
-{# product_videos.js is now loaded in base.html extra_scripts block #}
-{# <script src="{% static 'js/product_videos.js' %}"></script> -- MOVED TO base.html #}

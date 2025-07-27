@@ -51,40 +51,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // This function is called by the YouTube IFrame Player API when it's ready.
     window.onYouTubeIframeAPIReady = function() {
-        console.log('onYouTubeIframeAPIReady fired!'); // This should now appear in console
+        console.log('onYouTubeIframeAPIReady fired!'); 
 
         videoPlayers.forEach(player => {
             const videoId = player.getAttribute('data-video-id');
-
-            // --- THIS IS THE CRITICAL LINE ---
             const youtubeVideoId = player.getAttribute('data-youtube-id'); 
-
+            
             if (!youtubeVideoId) {
                 console.error('Error: YouTube Video ID not found for video-player ' + videoId + '. Cannot initialize YouTube Player.');
-                return; // Exit if no valid YouTube ID
+                return; 
             }
-            console.log('Extracted YouTube Video ID for video-' + videoId + ': ' + youtubeVideoId); // Debug log
+            console.log('Extracted YouTube Video ID for video-' + videoId + ': ' + youtubeVideoId); 
 
             const playerContainerId = 'youtube-player-' + videoId;
-
+            
             ytPlayers[videoId] = new YT.Player(playerContainerId, {
                 height: '340',
                 width: '800',
-                videoId: youtubeVideoId, // Now this will be a valid ID
+                videoId: youtubeVideoId, 
                 playerVars: {
                     'enablejsapi': 1,
-                    'origin': window.location.origin // Use window.location.origin for robustness
+                    'origin': window.location.origin 
                 },
                 events: {
                     'onReady': function(event) {
-                        console.log('YouTube player for video ' + videoId + ' is ready.'); // This should appear
+                        console.log('YouTube player for video ' + videoId + ' is ready.'); 
                     },
                     'onStateChange': function(event) {
                         console.log('Video ' + videoId + ' state changed to: ' + event.data);
                         if (event.data === YT.PlayerState.ENDED) {
                             const quizForm = document.getElementById('quiz-form-' + videoId);
                             const currentActiveLink = document.querySelector('.video-link.active');
-
+                            
                             if (currentActiveLink && currentActiveLink.getAttribute('data-video-id') == videoId) {
                                 console.log('Video ' + videoId + ' ended. Attempting to show quiz form.');
                                 if (quizForm) {

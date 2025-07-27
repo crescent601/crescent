@@ -40,9 +40,9 @@ function filterVideos(category) {
             } else {
                 video.style.display = 'none';
             }
-        }
+        } // <--- यहाँ missing closing brace जोड़ा गया है
     });
-}
+} // <--- और यहाँ filterVideos फंक्शन के लिए भी
 document.addEventListener('DOMContentLoaded', function () {
     const videos = document.querySelectorAll('video');
 
@@ -58,4 +58,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-
