@@ -3,7 +3,8 @@
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'css/product_videos.css' %}">
-    <script src="https://www.youtube.com/iframe_api"></script>
+    {# The YouTube API script is now loaded in base.html at the end of the body #}
+    {# <script src="https://www.youtube.com/iframe_api"></script> -- REMOVED FROM HERE #}
 {% endblock %}
 
 {% block title %}{{ product_training.title }} - Videos{% endblock %}
@@ -28,7 +29,8 @@
             <div id="video-{{ video.id }}"
                  class="video-player {% if not forloop.first %}hidden{% endif %}"
                  data-video-id="{{ video.id }}"
-                 data-youtube-id="{{ video.get_youtube_video_id }}"> {% if video.get_embed_url %}
+                 data-youtube-id="{{ video.get_youtube_video_id }}">
+                {% if video.get_embed_url %}
                 <div id="youtube-player-{{ video.id }}" class="youtube-player-container"></div>
                 {% else %}
                 <p class="text-danger">Invalid or missing video URL.</p>
@@ -68,5 +70,6 @@
         </div>
     </div>
 </div>
-<script src="{% static 'js/product_videos.js' %}"></script>
+{# product_videos.js is now loaded in base.html extra_scripts block #}
+{# <script src="{% static 'js/product_videos.js' %}"></script> -- MOVED TO base.html #}
 {% endblock %}
