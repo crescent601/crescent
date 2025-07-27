@@ -50,40 +50,65 @@ document.addEventListener('DOMContentLoaded', function () {
             this.classList.add('active');
 
             // Play the selected video if its player object exists
+            // This might re-initialize the video or play if paused.
             if (ytPlayers[videoId] && typeof ytPlayers[videoId].playVideo === 'function') {
                 ytPlayers[videoId].playVideo();
             }
         });
     });
 
+    // --- Critical Change Here ---
     // This function is called by the YouTube IFrame Player API when it's ready.
     window.onYouTubeIframeAPIReady = function() {
         videoPlayers.forEach(player => {
             const videoId = player.getAttribute('data-video-id');
-            const iframe = player.querySelector('iframe');
-            const quizForm = document.getElementById('quiz-form-' + videoId);
+            const iframe = player.querySelector('iframe'); // Get the iframe element
 
             if (iframe) {
-                // Extract video ID from iframe src
-                const urlParams = new URLSearchParams(new URL(iframe.src).search);
-                const youtubeVideoId = urlParams.get('v');
+                // Get the YouTube video ID from the iframe's src.
+                // Your current iframe.src format is: "...youtube.com/embed/<VIDEO_ID>?enablejsapi=1&origin=..."
+                // So, we need to extract the video ID from the path.
+                const videoUrl = new URL(iframe.src);
+                const youtubeVideoId = videoUrl.pathname.split('/').pop().split('?')[0];
 
-                ytPlayers[videoId] = new YT.Player(iframe, {
+                // Create a div element that will become the YouTube player.
+                // This is the standard way to initialize YT.Player.
+                const playerContainerId = 'youtube-player-' + videoId; // Unique ID for the player container
+                const playerContainer = document.createElement('div');
+                playerContainer.id = playerContainerId;
+                
+                // Replace the iframe with this new div container.
+                // We're essentially letting the YT.Player API create and manage the iframe itself.
+                iframe.parentNode.replaceChild(playerContainer, iframe);
+
+                ytPlayers[videoId] = new YT.Player(playerContainerId, { // Pass the ID of the new div
+                    height: '340',
+                    width: '800',
+                    videoId: youtubeVideoId, // Pass the extracted YouTube video ID
+                    playerVars: {
+                        'enablejsapi': 1,
+                        'origin': '{{ request.scheme }}://{{ request.get_host }}'
+                    },
                     events: {
                         'onReady': function(event) {
-                            // Optionally, if you want to autoplay when ready, though user interaction is better
-                            // event.target.playVideo();
+                            // If the first video, ensure it plays if it's the active one
+                            const currentActiveLink = document.querySelector('.video-link.active');
+                            if (currentActiveLink && currentActiveLink.getAttribute('data-video-id') == videoId) {
+                                // event.target.playVideo(); // Optional: Autoplay first video
+                            }
                         },
                         'onStateChange': function(event) {
                             // State 0 means video has ended
                             if (event.data === YT.PlayerState.ENDED) {
-                                // Only show quiz if the current video is active
-                                if (player.classList.contains('active') || !player.classList.contains('hidden')) {
-                                     // Ensure the quiz form exists and is hidden
+                                const quizForm = document.getElementById('quiz-form-' + videoId);
+                                const currentActiveLink = document.querySelector('.video-link.active');
+                                if (currentActiveLink && currentActiveLink.getAttribute('data-video-id') == videoId) {
+                                    console.log('Video ' + videoId + ' ended. Attempting to show quiz form.');
                                     if (quizForm) {
                                         quizForm.classList.remove('hidden'); // Show the quiz form
-                                        // Optional: Scroll to the quiz form
                                         quizForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    } else {
+                                        console.log('Quiz form for video ' + videoId + ' not found.');
                                     }
                                 }
                             }
@@ -94,4 +119,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 });
-//nothing have to change this file

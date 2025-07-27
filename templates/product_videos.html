@@ -27,16 +27,7 @@
             {% for video in product_training.videos.all %}
             <div id="video-{{ video.id }}" class="video-player {% if not forloop.first %}hidden{% endif %}" data-video-id="{{ video.id }}">
                 {% if video.get_embed_url %}
-                <iframe
-                    width="800"
-                    height="340"
-                    src="{{ video.get_embed_url }}?enablejsapi=1&origin={{ request.scheme }}://{{ request.get_host }}"
-                    title="{{ video.title }}"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                    data-original-src="{{ video.get_embed_url }}?enablejsapi=1&origin={{ request.scheme }}://{{ request.get_host }}"
-                ></iframe>
+                <div id="youtube-player-{{ video.id }}" class="youtube-player-container"></div>
                 {% else %}
                 <p class="text-danger">Invalid or missing video URL.</p>
                 {% endif %}
@@ -63,7 +54,7 @@
                 {% if video.id in result_map %}
                 <div class="quiz-result hidden" id="quiz-result-{{ video.id }}">
                     <p><strong>Score:</strong> {{ result_map.video.id.score }}%</p>
-                    {% if result_map.video.id.score %} {# Assuming result_map.video.id.score is boolean for pass/fail, or check against a threshold #}
+                    {% if result_map.video.id.score %}
                     <p style="color: green;">✅ Passed</p>
                     {% else %}
                     <p style="color: red;">❌ Not Passed</p>
