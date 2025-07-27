@@ -1,7 +1,8 @@
 from collections import defaultdict
 import pandas as pd
 from django.views.generic import ListView, TemplateView
-from .models import Post, Profile, Categories, ProductTraining, JoiningApplication,TourPlan,UserVideoUnlock,Territory, ProductVideo, VideoQuestion, VideoAnswer, UserVideoQuizResult # Updated import
+# सुनिश्चित करें कि सभी आवश्यक मॉडल इम्पोर्टेड हैं
+from .models import Post, Profile, Categories, ProductTraining, JoiningApplication,TourPlan,UserVideoUnlock,Territory, ProductVideo, VideoQuestion, VideoAnswer, UserVideoQuizResult, UserCategoryProgress # Updated import
 from django.contrib.auth import authenticate, login
 from .forms import JoiningForm, UserRegistrationForm , TourPlanForm
 from google.oauth2 import service_account
@@ -15,12 +16,14 @@ import calendar
 from datetime import date
 from django.contrib.auth.decorators import login_required
 MONTHS = ['Jan-2025', 'Fab-2025', 'Mar-2025', 'Apr-2025', 'May-2025', 'Jun-2025',
-            'Jul-2025', 'Aug-2025', 'Sep-2025', 'Oct-2025', 'Nov-2025', 'Dec-2025']
+             'Jul-2025', 'Aug-2025', 'Sep-2025', 'Oct-2025', 'Nov-2025', 'Dec-2025']
 
 # ========== GOOGLE SHEETS SETTINGS ==========
+# ध्यान दें: यह पाथ Render पर काम नहीं करेगा। आपको Render के लिए env vars का उपयोग करना होगा।
+# यह सिर्फ एक रिमाइंडर है, यह वर्तमान 500 एरर का कारण नहीं है।
 SERVICE_ACCOUNT_FILE = r'C:\Users\Bhargav\PycharmProjects\PYPROGRAM\Django_Project\jango New\jango\jango\Service Account Final.json'
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-SPREADSHEET_ID = '1wBr1ml39yaYl45Xfr1kUdbEl8dljaHpwAPDdeB530bo'  # Just the ID, not full URL
+SPREADSHEET_ID = '1wBr1ml39yaYl45Xfr1kUdbEl8dljaHpwAPDdeB530bo'   # Just the ID, not full URL
 RANGE_NAME = 'Jan-2025!A1:G100'
 
 def get_sheet_service():
@@ -157,7 +160,7 @@ class ProductView(TemplateView):
 # ========== LOGIN VIEW ==========
 def login_user(request):
     if request.method == 'POST':
-        username = request.POST.get('username')  # <-- Fix here
+        username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
 
@@ -271,7 +274,7 @@ def product_videos(request, product_id):
             if result and result.completed and result.passed:
                 unlocked_video_ids.add(video.id)
             else:
-                break  # Stop unlocking further videos
+                break   # Stop unlocking further videos
 
     return render(request, 'product_videos.html', {
         'product_training': product_training,
@@ -281,19 +284,17 @@ def product_videos(request, product_id):
     })
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .models import ProductVideo, VideoQuestion, VideoAnswer, UserVideoQuizResult, UserVideoUnlock, UserCategoryProgress # सुनिश्चित करें कि ये सभी मॉडल यहां इम्पोर्टेड हैं
-
+# यह आपका submit_quiz फ़ंक्शन है जिसमें NotNullViolation एरर आ रही थी
 @login_required
 def submit_quiz(request, video_id):
     video = get_object_or_404(ProductVideo, id=video_id)
     questions = VideoQuestion.objects.filter(video=video)
     score = 0
-    total_questions = questions.count()
-    all_answers_correct = True # नया फ्लैग
+    total_questions = questions.count() 
+    all_answers_correct = True # यह फ्लैग महत्वपूर्ण है
 
     if request.method == 'POST':
+        # उपयोगकर्ता के सभी उत्तरों को लूप करता है और सही/गलत ट्रैक करता है
         for question in questions:
             selected_answer_id = request.POST.get(f'question_{question.id}')
             if selected_answer_id:
@@ -302,54 +303,51 @@ def submit_quiz(request, video_id):
                     if selected_answer.is_correct:
                         score += 1
                     else:
-                        all_answers_correct = False 
+                        all_answers_correct = False # यदि कोई भी उत्तर गलत है, तो इसे False पर सेट करें
                 except VideoAnswer.DoesNotExist:
                     all_answers_correct = False 
 
         percentage = (score / total_questions) * 100 if total_questions > 0 else 0
 
-        
+        # UserVideoQuizResult को बनाता/अपडेट करता है
         user_quiz_result, created = UserVideoQuizResult.objects.update_or_create(
             user=request.user,
             video=video,
             defaults={
                 'score': percentage,
                 'completed': True, 
-                'passed': all_answers_correct 
+                'passed': all_answers_correct, # 'passed' फ़ील्ड अब all_answers_correct पर निर्भर करती है
+                'total_questions': total_questions,
             }
         )
 
-        
-        if all_answers_correct:
+        # 4. अगला वीडियो अनलॉक करना और श्रेणी प्रगति (`if all_answers_correct` ब्लॉक):
+        if all_answers_correct: # <--- यह शर्त आपके "सभी उत्तर सही हों" की आवश्यकता को पूरा करती है
             messages.success(request, 'Congratulations! You passed the quiz. The next video is unlocked.')
 
-            
+            # उसी ट्रेनिंग में अगला वीडियो ढूंढें (वर्तमान वीडियो के क्रम के बाद)
             next_video = ProductVideo.objects.filter(
                 product_training=video.product_training,
                 order__gt=video.order 
             ).order_by('order').first()
 
             if next_video:
+                # यदि कोई अगला वीडियो है, तो उसे उपयोगकर्ता के लिए अनलॉक करें
                 UserVideoUnlock.objects.get_or_create(user=request.user, video=next_video)
             else:
-                
+                # यदि कोई अगला वीडियो नहीं है, तो इसका मतलब है कि उपयोगकर्ता ने इस ट्रेनिंग के सभी वीडियो पूरे कर लिए हैं
                 try:
+                    # संबंधित श्रेणी को 'पूर्ण' के रूप में चिह्नित करें
                     UserCategoryProgress.objects.get_or_create(
                         user=request.user,
-                        category=video.product_training.category 
+                        category=video.product_training.category # वीडियो की ट्रेनिंग श्रेणी
                     )
                     messages.info(request, 'You have completed all videos in this training category!')
                 except AttributeError:
-                    
-                    messages.warning(request, 'All videos completed, but category progress could not be updated.')
+                    messages.warning(request, 'All videos completed, but category progress could not be updated (category missing).')
 
         else:
-            
             messages.error(request, 'Incorrect answers. Please review the video and try the quiz again.')
 
-        
         return redirect('product_videos', product_id=video.product_training.id)
-
-   
-    messages.error(request, 'Invalid request method for quiz submission.')
-    return redirect('product_videos', product_id=video.product_training.id)
+    # ... (शेष कोड) ...
