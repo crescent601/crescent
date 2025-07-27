@@ -10,34 +10,74 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let ytPlayers = {}; 
 
-    // ... (remaining setup for active link, etc.) ...
+    // Initial setup to show the first video and hide others
+    if (videoLinks.length > 0) {
+        videoLinks[0].classList.add('active');
+        videoPlayers[0].classList.remove('hidden');
+    }
+
+    videoLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const videoIdToShow = this.getAttribute('data-video-id');
+
+            // Hide all video players
+            videoPlayers.forEach(player => player.classList.add('hidden'));
+
+            // Show the clicked video player
+            const playerToShow = document.getElementById(`video-${videoIdToShow}`);
+            if (playerToShow) {
+                playerToShow.classList.remove('hidden');
+                // Scroll to the video player
+                playerToShow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Pause all other YouTube players if they are playing
+                for (const id in ytPlayers) {
+                    if (id !== videoIdToShow && ytPlayers[id] && typeof ytPlayers[id].pauseVideo === 'function') {
+                        ytPlayers[id].pauseVideo();
+                    }
+                }
+            }
+
+            // Update active link
+            videoLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+
+            // Hide quiz forms/results when switching videos
+            document.querySelectorAll('.quiz-form').forEach(form => form.classList.add('hidden'));
+            document.querySelectorAll('.quiz-result').forEach(result => result.classList.add('hidden'));
+        });
+    });
+
 
     // This function is called by the YouTube IFrame Player API when it's ready.
     window.onYouTubeIframeAPIReady = function() {
-        console.log('onYouTubeIframeAPIReady fired!'); 
+        console.log('onYouTubeIframeAPIReady fired!'); // This should now appear in console
 
         videoPlayers.forEach(player => {
             const videoId = player.getAttribute('data-video-id');
+
+            // --- THIS IS THE CRITICAL LINE ---
             const youtubeVideoId = player.getAttribute('data-youtube-id'); 
 
             if (!youtubeVideoId) {
                 console.error('Error: YouTube Video ID not found for video-player ' + videoId + '. Cannot initialize YouTube Player.');
-                return; 
+                return; // Exit if no valid YouTube ID
             }
+            console.log('Extracted YouTube Video ID for video-' + videoId + ': ' + youtubeVideoId); // Debug log
 
             const playerContainerId = 'youtube-player-' + videoId;
 
             ytPlayers[videoId] = new YT.Player(playerContainerId, {
                 height: '340',
                 width: '800',
-                videoId: youtubeVideoId, 
+                videoId: youtubeVideoId, // Now this will be a valid ID
                 playerVars: {
                     'enablejsapi': 1,
-                    'origin': window.location.origin 
+                    'origin': window.location.origin // Use window.location.origin for robustness
                 },
                 events: {
                     'onReady': function(event) {
-                        console.log('YouTube player for video ' + videoId + ' is ready.'); 
+                        console.log('YouTube player for video ' + videoId + ' is ready.'); // This should appear
                     },
                     'onStateChange': function(event) {
                         console.log('Video ' + videoId + ' state changed to: ' + event.data);
