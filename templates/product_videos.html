@@ -25,8 +25,10 @@
 
         <div class="video-content">
             {% for video in product_training.videos.all %}
-            <div id="video-{{ video.id }}" class="video-player {% if not forloop.first %}hidden{% endif %}" data-video-id="{{ video.id }}">
-                {% if video.get_embed_url %}
+            <div id="video-{{ video.id }}"
+                 class="video-player {% if not forloop.first %}hidden{% endif %}"
+                 data-video-id="{{ video.id }}"
+                 data-youtube-id="{{ video.youtube_id }}"> {% if video.get_embed_url %}
                 <div id="youtube-player-{{ video.id }}" class="youtube-player-container"></div>
                 {% else %}
                 <p class="text-danger">Invalid or missing video URL.</p>
