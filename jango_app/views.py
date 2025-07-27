@@ -250,8 +250,8 @@ def submit_tour_plan(request):
 @login_required
 def training_quiz(request, training_id):
     training = ProductTraining.objects.get(id=training_id)
-    # Old quiz logic - we will not use this for video-specific quizzes
-    return redirect('home') # Redirecting as we will handle quiz per video
+    
+    return redirect('home') 
 
 @login_required
 def product_videos(request, product_id):
@@ -302,56 +302,54 @@ def submit_quiz(request, video_id):
                     if selected_answer.is_correct:
                         score += 1
                     else:
-                        all_answers_correct = False # एक भी गलत उत्तर, तो फ्लैग फॉल्स
+                        all_answers_correct = False 
                 except VideoAnswer.DoesNotExist:
-                    all_answers_correct = False # यदि कोई उत्तर नहीं चुना गया या अमान्य आईडी, तो भी गलत
+                    all_answers_correct = False 
 
         percentage = (score / total_questions) * 100 if total_questions > 0 else 0
 
-        # UserVideoQuizResult को अपडेट या बनाएं
+        
         user_quiz_result, created = UserVideoQuizResult.objects.update_or_create(
             user=request.user,
             video=video,
             defaults={
                 'score': percentage,
-                'completed': True, # क्विज़ सबमिट हो गया है
-                'passed': all_answers_correct # पास तभी जब सारे उत्तर सही हों
+                'completed': True, 
+                'passed': all_answers_correct 
             }
         )
 
-        # यदि सारे उत्तर सही हैं और पास हो गया
+        
         if all_answers_correct:
             messages.success(request, 'Congratulations! You passed the quiz. The next video is unlocked.')
 
-            # अगला वीडियो अनलॉक करें
+            
             next_video = ProductVideo.objects.filter(
                 product_training=video.product_training,
-                order__gt=video.order # 'order' फील्ड का उपयोग करें, id__gt के बजाय
+                order__gt=video.order 
             ).order_by('order').first()
 
             if next_video:
                 UserVideoUnlock.objects.get_or_create(user=request.user, video=next_video)
             else:
-                # यदि कोई अगला वीडियो नहीं है, तो पूरी कैटेगरी को 'completed' मार्क करें (या जैसा भी आपका लॉजिक हो)
-                # सुनिश्चित करें कि UserCategoryProgress मॉडल मौजूद है और category फील्ड सही है
-                # (यह आपके models.py में ProductTraining.category से संबंधित होना चाहिए)
+                
                 try:
                     UserCategoryProgress.objects.get_or_create(
                         user=request.user,
-                        category=video.product_training.category # यहां category ऑब्जेक्ट पास करें
+                        category=video.product_training.category 
                     )
                     messages.info(request, 'You have completed all videos in this training category!')
                 except AttributeError:
-                    # यदि ProductTraining का category एट्रीब्यूट नहीं है या UserCategoryProgress नहीं है
+                    
                     messages.warning(request, 'All videos completed, but category progress could not be updated.')
 
         else:
-            # यदि सारे उत्तर सही नहीं हैं
+            
             messages.error(request, 'Incorrect answers. Please review the video and try the quiz again.')
 
-        # क्विज़ सबमिट होने के बाद हमेशा वीडियो लिस्ट पेज पर रीडायरेक्ट करें
+        
         return redirect('product_videos', product_id=video.product_training.id)
 
-    # यदि GET अनुरोध है (सीधे URL पर नेविगेट किया गया)
+   
     messages.error(request, 'Invalid request method for quiz submission.')
     return redirect('product_videos', product_id=video.product_training.id)
