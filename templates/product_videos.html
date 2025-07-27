@@ -70,6 +70,8 @@
         </div>
     </div>
 </div>
+{% block extra_scripts %}
+    <script src="{% static 'js/product_videos.js' %}"></script>
+{% endblock %}
 {# product_videos.js is now loaded in base.html extra_scripts block #}
 {# <script src="{% static 'js/product_videos.js' %}"></script> -- MOVED TO base.html #}
-{% endblock %}
