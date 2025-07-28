@@ -21,7 +21,7 @@ MONTHS = ['Jan-2025', 'Fab-2025', 'Mar-2025', 'Apr-2025', 'May-2025', 'Jun-2025'
 # ========== GOOGLE SHEETS SETTINGS ==========
 # ध्यान दें: यह पाथ Render पर काम नहीं करेगा। आपको Render के लिए env vars का उपयोग करना होगा।
 # यह सिर्फ एक रिमाइंडर है, यह वर्तमान 500 एरर का कारण नहीं है।
-SERVICE_ACCOUNT_FILE = r'C:\Users\Bhargav\PycharmProjects\PYPROGRAM\Django_Project\jango New\jango\jango\Service Account Final.json'
+SERVICE_ACCOUNT_FILE = r'C:\Users\Bhargav\PycharmProjects\PYPROGRAM\Django_Project\jango\jango\Service Account Final.json'
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 SPREADSHEET_ID = '1wBr1ml39yaYl45Xfr1kUdbEl8dljaHpwAPDdeB530bo'   # Just the ID, not full URL
 RANGE_NAME = 'Jan-2025!A1:G100'
@@ -291,8 +291,8 @@ def product_videos(request, product_id):
     return render(request, 'product_videos.html', {
         'product_training': product_training,
         'videos': videos,
-        'unlocked_video_ids': unlocked_video_ids,
-        'result_map': result_map_data, # *** Pass the JSON-serializable dictionary ***
+        'unlocked_video_ids': list(unlocked_video_ids), # Passed as a list for JavaScript JSON parsing
+        'result_map': result_map_data, # Passed the JSON-serializable dictionary
     })
 
 

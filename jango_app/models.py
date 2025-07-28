@@ -107,8 +107,9 @@ class ProductVideo(models.Model):
         """
         video_id = self.get_youtube_video_id()
         if video_id:
-            # *** Corrected line: Using www.youtube.com/iframe_api for standard embed ***
-            return f"www.youtube.com/iframe_api{video_id}?rel=0" # rel=0 prevents related videos
+            # *** IMPORTANT: Added &enablejsapi=1 for JavaScript control ***
+            # *** Also, considering the common YouTube embed domain pattern ***
+            return f"youtube.com/24{video_id}?rel=0&enablejsapi=1"
         return None
 
 
