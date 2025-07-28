@@ -62,10 +62,6 @@ class ProductTraining(models.Model):
         verbose_name="Featured Image URL"
     )
     title = models.CharField(max_length=500)
-    # Temporary comment for Git test
-    # --- Start Git Test Change ---
-    # This is a test comment to ensure Git push works.
-    # --- End Git Test Change ---
     created_at = models.DateField(auto_now_add=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE)
     description = models.TextField()
@@ -111,11 +107,9 @@ class ProductVideo(models.Model):
         """
         video_id = self.get_youtube_video_id()
         if video_id:
-            # --- THIS IS THE CORRECTED LINE ---
-            return f"https://www.youtube.com/embed/{video_id}?rel=0" # rel=0 prevents related videos
+            # *** Corrected line: Using www.youtube.com/iframe_api for standard embed ***
+            return f"www.youtube.com/iframe_api{video_id}?rel=0" # rel=0 prevents related videos
         return None
-
-
 
 
 # Application for joining (job or user form)

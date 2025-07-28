@@ -1,8 +1,7 @@
 from collections import defaultdict
 import pandas as pd
 from django.views.generic import ListView, TemplateView
-# सुनिश्चित करें कि सभी आवश्यक मॉडल इम्पोर्टेड हैं
-from .models import Post, Profile, Categories, ProductTraining, JoiningApplication,TourPlan,UserVideoUnlock,Territory, ProductVideo, VideoQuestion, VideoAnswer, UserVideoQuizResult, UserCategoryProgress # Updated import
+from .models import Post, Profile, Categories, ProductTraining, JoiningApplication,TourPlan,UserVideoUnlock,Territory, ProductVideo, VideoQuestion, VideoAnswer, UserVideoQuizResult, UserCategoryProgress
 from django.contrib.auth import authenticate, login
 from .forms import JoiningForm, UserRegistrationForm , TourPlanForm
 from google.oauth2 import service_account
@@ -15,6 +14,7 @@ import json
 import calendar
 from datetime import date
 from django.contrib.auth.decorators import login_required
+
 MONTHS = ['Jan-2025', 'Fab-2025', 'Mar-2025', 'Apr-2025', 'May-2025', 'Jun-2025',
              'Jul-2025', 'Aug-2025', 'Sep-2025', 'Oct-2025', 'Nov-2025', 'Dec-2025']
 
@@ -29,7 +29,6 @@ RANGE_NAME = 'Jan-2025!A1:G100'
 def get_sheet_service():
     creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     return build('sheets', 'v4', credentials=creds)
-
 
 
 # ========== GOOGLE SHEET DATA FUNCTION ==========
@@ -69,8 +68,6 @@ def get_final_sum_by_month(sheet_id):
     return month_totals
 
 
-
-
 # ========== Territory Wise Data ==========
 def get_date_territory_mapping(sheet_id, employee_name):
     service = get_sheet_service()
@@ -105,10 +102,14 @@ def dashboard_view(request):
     user = request.user
     try:
         sheet_id = user.profile.sheet_id
-    except:
+    except Profile.DoesNotExist: # Use specific exception for clarity
+        sheet_id = None
+    except AttributeError: # Handles case if profile exists but sheet_id is None/missing
         sheet_id = None
 
+
     if not sheet_id:
+        messages.error(request, 'Google Sheet ID not set for your profile. Please contact admin.')
         return render(request, 'dashboard.html', {'error': 'Google Sheet ID not set for your profile.'})
 
     # Sheet data (monthly totals)
@@ -119,8 +120,9 @@ def dashboard_view(request):
 
     # TourPlan chart data (territory-wise)
     from django.db.models import Count
-    territory_counts = TourPlan.objects.exclude(territory_name=None).values('territory_name__name').annotate(count=Count('id'))
-    territory_labels = [item['territory_name__name'] for item in territory_counts]
+    # Corrected: Use TourPlan.objects.filter(user=request.user) for current user's data
+    territory_counts = TourPlan.objects.filter(user=request.user).values('territory__name').annotate(count=Count('id'))
+    territory_labels = [item['territory__name'] for item in territory_counts]
     territory_values = [item['count'] for item in territory_counts]
 
     territory_chart_data = json.dumps({'labels': territory_labels, 'values': territory_values})
@@ -183,7 +185,8 @@ def register_user(request):
             user.set_password(form.cleaned_data['password'])
             user.save()
 
-            profile = user.profile
+            # Create or get profile for the user
+            profile, created = Profile.objects.get_or_create(user=user)
             profile.role = form.cleaned_data['role']
             profile.save()
 
@@ -226,12 +229,12 @@ def get_current_month_dates():
 def submit_tour_plan(request):
     current_month_dates = get_current_month_dates()
 
+    user_territories = []
     try:
-        # Single territory (if Profile has territory FK)
-        user_territories = [request.user.profile.territory] if request.user.profile.territory else []
-    except:
-        # If using ManyToMany, fallback
-        user_territories = request.user.profile.territories.all()
+        if hasattr(request.user, 'profile'):
+            user_territories = request.user.profile.territories.all()
+    except Profile.DoesNotExist:
+        pass # Handle case where profile might not exist for some users
 
     if request.method == 'POST':
         form = TourPlanForm(request.POST, user=request.user)
@@ -253,7 +256,6 @@ def submit_tour_plan(request):
 @login_required
 def training_quiz(request, training_id):
     training = ProductTraining.objects.get(id=training_id)
-    
     return redirect('home') 
 
 @login_required
@@ -262,39 +264,48 @@ def product_videos(request, product_id):
     videos = product_training.videos.all().order_by('order')
 
     user_results = UserVideoQuizResult.objects.filter(user=request.user, video__in=videos)
-    result_map = {result.video.id: result for result in user_results}
+    
+    # *** MODIFIED: Create a JSON-serializable result_map_data ***
+    result_map_data = {}
+    for result in user_results:
+        result_map_data[result.video.id] = {
+            'score': result.score,
+            'passed': result.passed,
+            'completed': result.completed,
+            # Add other fields from UserVideoQuizResult if needed by JavaScript
+        }
 
     unlocked_video_ids = set()
     for i, video in enumerate(videos):
         if i == 0:
-            unlocked_video_ids.add(video.id)
+            unlocked_video_ids.add(video.id) # First video is always unlocked
         else:
             prev_video = videos[i - 1]
-            result = result_map.get(prev_video.id)
-            if result and result.completed and result.passed:
+            # *** Use the serializable data here ***
+            result = result_map_data.get(prev_video.id) 
+            if result and result['completed'] and result['passed']: # Check dict keys
                 unlocked_video_ids.add(video.id)
             else:
-                break   # Stop unlocking further videos
+                break   # Stop unlocking further videos if previous is not completed/passed
 
     return render(request, 'product_videos.html', {
         'product_training': product_training,
         'videos': videos,
         'unlocked_video_ids': unlocked_video_ids,
-        'result_map': result_map,
+        'result_map': result_map_data, # *** Pass the JSON-serializable dictionary ***
     })
 
 
-# यह आपका submit_quiz फ़ंक्शन है जिसमें NotNullViolation एरर आ रही थी
+# This is your submit_quiz function
 @login_required
 def submit_quiz(request, video_id):
     video = get_object_or_404(ProductVideo, id=video_id)
     questions = VideoQuestion.objects.filter(video=video)
     score = 0
     total_questions = questions.count() 
-    all_answers_correct = True # यह फ्लैग महत्वपूर्ण है
+    all_answers_correct = True # This flag is crucial
 
     if request.method == 'POST':
-        # उपयोगकर्ता के सभी उत्तरों को लूप करता है और सही/गलत ट्रैक करता है
         for question in questions:
             selected_answer_id = request.POST.get(f'question_{question.id}')
             if selected_answer_id:
@@ -303,44 +314,40 @@ def submit_quiz(request, video_id):
                     if selected_answer.is_correct:
                         score += 1
                     else:
-                        all_answers_correct = False # यदि कोई भी उत्तर गलत है, तो इसे False पर सेट करें
+                        all_answers_correct = False
                 except VideoAnswer.DoesNotExist:
                     all_answers_correct = False 
+            else: # If a question is not answered, it's considered incorrect
+                all_answers_correct = False
 
         percentage = (score / total_questions) * 100 if total_questions > 0 else 0
 
-        # UserVideoQuizResult को बनाता/अपडेट करता है
         user_quiz_result, created = UserVideoQuizResult.objects.update_or_create(
             user=request.user,
             video=video,
             defaults={
                 'score': percentage,
                 'completed': True, 
-                'passed': all_answers_correct, # 'passed' फ़ील्ड अब all_answers_correct पर निर्भर करती है
+                'passed': all_answers_correct, 
                 'total_questions': total_questions,
             }
         )
 
-        # 4. अगला वीडियो अनलॉक करना और श्रेणी प्रगति (`if all_answers_correct` ब्लॉक):
-        if all_answers_correct: # <--- यह शर्त आपके "सभी उत्तर सही हों" की आवश्यकता को पूरा करती है
+        if all_answers_correct:
             messages.success(request, 'Congratulations! You passed the quiz. The next video is unlocked.')
 
-            # उसी ट्रेनिंग में अगला वीडियो ढूंढें (वर्तमान वीडियो के क्रम के बाद)
             next_video = ProductVideo.objects.filter(
                 product_training=video.product_training,
                 order__gt=video.order 
             ).order_by('order').first()
 
             if next_video:
-                # यदि कोई अगला वीडियो है, तो उसे उपयोगकर्ता के लिए अनलॉक करें
                 UserVideoUnlock.objects.get_or_create(user=request.user, video=next_video)
             else:
-                # यदि कोई अगला वीडियो नहीं है, तो इसका मतलब है कि उपयोगकर्ता ने इस ट्रेनिंग के सभी वीडियो पूरे कर लिए हैं
                 try:
-                    # संबंधित श्रेणी को 'पूर्ण' के रूप में चिह्नित करें
                     UserCategoryProgress.objects.get_or_create(
                         user=request.user,
-                        category=video.product_training.category # वीडियो की ट्रेनिंग श्रेणी
+                        category=video.product_training.category
                     )
                     messages.info(request, 'You have completed all videos in this training category!')
                 except AttributeError:
@@ -350,4 +357,6 @@ def submit_quiz(request, video_id):
             messages.error(request, 'Incorrect answers. Please review the video and try the quiz again.')
 
         return redirect('product_videos', product_id=video.product_training.id)
-    # ... (शेष कोड) ...
+    # If not POST, just render the page (though submit_quiz expects POST usually)
+    messages.error(request, 'Invalid request method for quiz submission.')
+    return redirect('product_videos', product_id=video.product_training.id) # Redirect back to video page on GET

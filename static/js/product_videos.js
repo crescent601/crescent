@@ -2,106 +2,192 @@
 
 console.log('product_videos.js loaded and script started!');
 
-// onYouTubeIframeAPIReady को DOMContentLoaded से बाहर ले जाया गया है
-// यह YouTube API द्वारा ग्लोबल स्कोप में कॉल किया जाता है।
-window.onYouTubeIframeAPIReady = function() {
-    console.log('onYouTubeIframeAPIReady fired!'); // यह अब कंसोल में दिखना चाहिए
+let players = {}; // To store YouTube player objects
 
-    const videoPlayers = document.querySelectorAll('.video-player');
-    let ytPlayers = {}; 
+// YouTube IFrame API Ready Callback
+function onYouTubeIframeAPIReady() {
+    console.log('onYouTubeIframeAPIReady fired!');
+    // जब API तैयार हो जाए और DOM भी तैयार हो, तो प्लेयर्स को इनिशियलाइज़ करें
+    initializePlayers(); 
+}
 
-    videoPlayers.forEach(player => {
-        const videoId = player.getAttribute('data-video-id');
-        const youtubeVideoId = player.getAttribute('data-youtube-id'); 
-        
-        if (!youtubeVideoId) {
-            console.error('Error: YouTube Video ID not found for video-player ' + videoId + '. Cannot initialize YouTube Player.');
-            return; 
+// प्लेयर इनिशियलाइज़ेशन फंक्शन
+function initializePlayers() {
+    console.log('Initializing YouTube players...');
+    
+    // सभी वीडियो प्लेयर्स के कंटेनरों को ढूंढें
+    document.querySelectorAll('.youtube-player-container').forEach(container => {
+        const playerId = container.id; // 'youtube-player-X'
+        // video-player div से data-youtube-id निकालें
+        const videoPlayerDiv = container.closest('.video-player');
+        if (!videoPlayerDiv) {
+            console.error(`Could not find parent .video-player for ${playerId}`);
+            return;
         }
-        console.log('Extracted YouTube Video ID for video-' + videoId + ': ' + youtubeVideoId); 
+        const youtubeVideoId = videoPlayerDiv.dataset.youtubeId; // 'get_youtube_video_id' से आया हुआ ID
 
-        const playerContainerId = 'youtube-player-' + videoId;
-        
-        ytPlayers[videoId] = new YT.Player(playerContainerId, {
-            height: '340',
-            width: '800',
-            videoId: youtubeVideoId, 
-            playerVars: {
-                'enablejsapi': 1,
-                'origin': window.location.origin 
-            },
-            events: {
-                'onReady': function(event) {
-                    console.log('YouTube player for video ' + videoId + ' is ready.'); 
+        if (youtubeVideoId && playerId && !players[playerId]) { // केवल तभी इनिशियलाइज़ करें जब player पहले से न बना हो
+            console.log(`Creating YouTube Player for ID: ${playerId}, Video ID: ${youtubeVideoId}`);
+            
+            players[playerId] = new YT.Player(playerId, {
+                videoId: youtubeVideoId,
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
                 },
-                'onStateChange': function(event) {
-                    console.log('Video ' + videoId + ' state changed to: ' + event.data);
-                    if (event.data === YT.PlayerState.ENDED) {
-                        const quizForm = document.getElementById('quiz-form-' + videoId);
-                        const currentActiveLink = document.querySelector('.video-link.active');
-                        
-                        if (currentActiveLink && currentActiveLink.getAttribute('data-video-id') == videoId) {
-                            console.log('Video ' + videoId + ' ended. Attempting to show quiz form.');
-                            if (quizForm) {
-                                quizForm.classList.remove('hidden');
-                                quizForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            } else {
-                                console.log('Quiz form for video ' + videoId + ' not found.');
-                            }
-                        }
-                    }
+                playerVars: {
+                    'autoplay': 0, 
+                    'rel': 0,      
+                    'modestbranding': 1,
+                    'origin': window.location.origin // यह postMessage चेतावनी को कम करने में मदद कर सकता है
+                }
+            });
+        }
+    });
+}
+
+
+// YouTube Player Ready Event
+function onPlayerReady(event) {
+    const playerIframe = event.target.getIframe();
+    const playerId = playerIframe.id;
+    const videoId = playerIframe.dataset.videoId || playerIframe.src.match(/embed\/([a-zA-Z0-9_-]{11})/)?.[1]; // Fallback for videoId
+    console.log(`Youtubeer for ${playerId} is ready. Video ID: ${videoId}`);
+
+    // इस वीडियो से संबंधित क्विज़ बटन ढूंढें
+    const quizBtn = document.getElementById(`take-quiz-btn-${videoId}`); 
+    const quizForm = document.getElementById(`quiz-form-${videoId}`);
+    const quizResult = document.getElementById(`quiz-result-${videoId}`);
+
+
+    // वीडियो लिंक पर क्लिक इवेंट के लिए
+    playerIframe.closest('.video-player').dataset.actualPlayer = event.target; // Store player object for later use
+
+    // 90% वीडियो देखने पर क्विज़ बटन दिखाएं
+    // यह फ़ंक्शन हर 1 सेकंड में चलता रहेगा जब वीडियो चल रहा हो
+    setInterval(() => {
+        if (event.target.getPlayerState() === YT.PlayerState.PLAYING) {
+            const currentTime = event.target.getCurrentTime();
+            const duration = event.target.getDuration();
+            const percentWatched = (currentTime / duration) * 100;
+
+            if (quizBtn && percentWatched >= 90) {
+                // केवल तभी दिखाएं जब क्विज़ पहले से सबमिट न किया गया हो
+                if (!quizResult || quizResult.style.display === 'none') { // Assume quizResult is hidden if not taken
+                    quizBtn.style.display = 'block'; 
                 }
             }
-        });
-    });
-};
+        }
+    }, 1000); 
+}
 
-// DOMContentLoaded लिसनर को बाकी लॉजिक के लिए रखें
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOMContentLoaded fired!');
+// YouTube Player State Change Event
+function onPlayerStateChange(event) {
+    const playerIframe = event.target.getIframe();
+    const videoId = playerIframe.id.split('-')[2]; // 'youtube-player-X' से X निकालें
+    
+    if (event.data === YT.PlayerState.ENDED) {
+        console.log(`Video ${videoId} ended.`);
+        // यदि वीडियो समाप्त हो जाता है, तो क्विज़ बटन दिखाएं (यदि अभी तक नहीं दिखाया गया है)
+        const quizBtn = document.getElementById(`take-quiz-btn-${videoId}`);
+        const quizResult = document.getElementById(`quiz-result-${videoId}`);
+        if (quizBtn && (!quizResult || quizResult.style.display === 'none')) {
+            quizBtn.style.display = 'block';
+        }
+    }
+}
 
+// ============== Video Switching Logic ==============
+document.addEventListener('DOMContentLoaded', () => {
     const videoLinks = document.querySelectorAll('.video-link');
     const videoPlayers = document.querySelectorAll('.video-player');
 
-    // Initial setup to show the first video and hide others
-    if (videoLinks.length > 0) {
-        videoLinks[0].classList.add('active');
-        // वीडियो प्लेयर को अब onYouTubeIframeAPIReady में इनिशियलाइज़ किया जाएगा, 
-        // लेकिन इसकी visibility DOMContentLoaded पर सेट की जा सकती है।
-        // videoPlayers[0].classList.remove('hidden'); // इसे यहाँ से हटा दिया गया है
-    }
-
     videoLinks.forEach(link => {
         link.addEventListener('click', function() {
-            const videoIdToShow = this.getAttribute('data-video-id');
+            const targetVideoId = this.dataset.videoId;
+            const isLocked = this.dataset.isLocked === 'true';
+
+            if (isLocked) {
+                alert('This video is locked. Please complete the previous quizzes to unlock it.');
+                return; // लॉक किए गए वीडियो पर क्लिक करने पर कुछ न करें
+            }
 
             // सभी वीडियो प्लेयर्स को छिपाएं
-            videoPlayers.forEach(player => player.classList.add('hidden'));
+            videoPlayers.forEach(player => {
+                player.classList.add('hidden');
+                // यदि कोई वीडियो चल रहा है, तो उसे रोकें
+                const playerInstance = players[`Youtubeer-${player.dataset.videoId}`];
+                if (playerInstance && typeof playerInstance.pauseVideo === 'function') {
+                    playerInstance.pauseVideo();
+                }
+            });
 
-            // क्लिक किए गए वीडियो प्लेयर को दिखाएं
-            const playerToShow = document.getElementById(`video-${videoIdToShow}`);
-            if (playerToShow) {
-                playerToShow.classList.remove('hidden');
-                playerToShow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // सभी वीडियो लिंक्स से 'active' क्लास हटा दें
+            videoLinks.forEach(l => l.classList.remove('active'));
 
-                // अन्य YouTube प्लेयर्स को रोकें यदि वे चल रहे हों
-                // सुनिश्चित करें कि ytPlayers ऑब्जेक्ट onYouTubeIframeAPIReady के बाद उपलब्ध हो
-                if (window.ytPlayers) { // ग्लोबल स्कोप में ytPlayers तक पहुंचने के लिए
-                    for (const id in window.ytPlayers) {
-                        if (id !== videoIdToShow && window.ytPlayers[id] && typeof window.ytPlayers[id].pauseVideo === 'function') {
-                            window.ytPlayers[id].pauseVideo();
-                        }
+            // वर्तमान वीडियो प्लेयर दिखाएं
+            const targetPlayer = document.getElementById(`video-${targetVideoId}`);
+            if (targetPlayer) {
+                targetPlayer.classList.remove('hidden');
+                // संबंधित वीडियो लिंक को 'active' बनाएं
+                this.classList.add('active');
+                
+                // वीडियो को प्ले करना शुरू करें (वैकल्पिक)
+                const playerInstance = players[`Youtubeer-${targetVideoId}`];
+                if (playerInstance && typeof playerInstance.playVideo === 'function') {
+                    // सुनिश्चित करें कि प्लेयर तैयार है
+                    if (playerInstance.getPlayerState() === YT.PlayerState.UNSTARTED || 
+                        playerInstance.getPlayerState() === YT.PlayerState.ENDED) {
+                        playerInstance.playVideo();
                     }
                 }
             }
-
-            // एक्टिव लिंक अपडेट करें
-            videoLinks.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-
-            // वीडियो बदलते समय क्विज़ फ़ॉर्म/परिणामों को छिपाएं
-            document.querySelectorAll('.quiz-form').forEach(form => form.classList.add('hidden'));
-            document.querySelectorAll('.quiz-result').forEach(result => result.classList.add('hidden'));
         });
     });
+
+    // ============== Quiz Button Logic ==============
+    document.querySelectorAll('.take-quiz-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const videoId = this.dataset.videoId;
+            const quizForm = document.getElementById(`quiz-form-${videoId}`);
+            if (quizForm) {
+                quizForm.style.display = 'block'; // Show the quiz form
+                this.style.display = 'none'; // Hide the quiz button
+            }
+        });
+    });
+
+    // ============== Initial Load: Show first video and hide quiz/result if applicable ==============
+    const firstVideoId = document.querySelector('.video-link[data-video-id]').dataset.videoId;
+    if (firstVideoId) {
+        const firstQuizForm = document.getElementById(`quiz-form-${firstVideoId}`);
+        const firstQuizResult = document.getElementById(`quiz-result-${firstVideoId}`);
+        const firstTakeQuizBtn = document.getElementById(`take-quiz-btn-${firstVideoId}`);
+
+        if (firstQuizForm && !firstQuizForm.classList.contains('hidden')) {
+            firstQuizForm.style.display = 'none'; // Initially hide quiz forms
+        }
+        if (firstQuizResult && !firstQuizResult.classList.contains('hidden')) {
+             firstQuizResult.style.display = 'none'; // Initially hide quiz results
+        }
+        if (firstTakeQuizBtn) {
+            firstTakeQuizBtn.style.display = 'none'; // Initially hide take quiz button
+        }
+    }
+
+    // `result_map` से क्विज़ परिणाम को दिखाने या छिपाने का लॉजिक
+    // यह सुनिश्चित करने के लिए कि पृष्ठ लोड होने पर सही परिणाम दिखाए जाएं
+    const resultMapsJson = JSON.parse(document.getElementById('result-map-data')?.textContent || '{}');
+    for (const videoId in resultMapsJson) {
+        const result = resultMapsJson[videoId];
+        const quizForm = document.getElementById(`quiz-form-${videoId}`);
+        const takeQuizBtn = document.getElementById(`take-quiz-btn-${videoId}`);
+        const quizResult = document.getElementById(`quiz-result-${videoId}`);
+
+        if (result && result.completed) {
+            if (quizForm) quizForm.style.display = 'none';
+            if (takeQuizBtn) takeQuizBtn.style.display = 'none';
+            if (quizResult) quizResult.style.display = 'block'; // Show the result
+        }
+    }
 });

@@ -2,10 +2,7 @@
 {% load static %}
 
 {% block extra_head %}
-    {# product_videos.css को यहाँ लोड करें क्योंकि यह CSS है और हेड में होना चाहिए। #}
     <link rel="stylesheet" href="{% static 'css/product_videos.css' %}">
-    {# YouTube API स्क्रिप्ट को यहाँ से हटा दिया गया है। यह अब base.html में लोड होगा। #}
-    {# <script src="https://www.youtube.com/iframe_api"></script> -- REMOVED FROM HERE #}
 {% endblock %}
 
 {% block title %}{{ product_training.title }} - Videos{% endblock %}
@@ -17,9 +14,12 @@
         <div class="video-list-sidebar">
             <ul>
                 {% for video in product_training.videos.all %}
-                <li class="video-link {% if forloop.first %}active{% endif %} {% if video.id not in unlocked_video_ids %}locked{% endif %}"
-                    data-video-id="{{ video.id }}">
-                    {{ video.title }} {% if video.id not in unlocked_video_ids %}(Locked){% endif %}
+                {# video.id 1 को हमेशा unlocked मानें, बाकी को `unlocked_video_ids` के आधार पर #}
+                <li class="video-link {% if forloop.first %}active{% endif %} {% if not forloop.first and video.id not in unlocked_video_ids %}locked{% endif %}"
+                    data-video-id="{{ video.id }}"
+                    data-is-locked="{% if not forloop.first and video.id not in unlocked_video_ids %}true{% else %}false{% endif %}"
+                    >
+                    {{ video.title }} {% if not forloop.first and video.id not in unlocked_video_ids %}(Locked){% endif %}
                 </li>
                 {% endfor %}
             </ul>
@@ -30,14 +30,26 @@
             <div id="video-{{ video.id }}"
                  class="video-player {% if not forloop.first %}hidden{% endif %}"
                  data-video-id="{{ video.id }}"
-                 data-youtube-id="{{ video.get_youtube_video_id }}">
-                {% if video.get_embed_url %}
+                 data-youtube-id="{{ video.get_youtube_video_id }}"> {# यह video.get_youtube_video_id ही रहेगा #}
+                
+                {# YouTube Player के लिए DIV #}
+                {% if video.get_youtube_video_id %} {# अब get_embed_url की बजाय सीधे YouTube ID चेक करें #}
                 <div id="youtube-player-{{ video.id }}" class="youtube-player-container"></div>
                 {% else %}
-                <p class="text-danger">Invalid or missing video URL.</p>
+                <p class="text-danger">Invalid or missing YouTube Video ID.</p>
                 {% endif %}
 
-                {% if video.id in unlocked_video_ids %}
+                {# Take Quiz Button - यह सिर्फ़ तभी दिखेगा जब वीडियो पूरा देखा गया हो और अनलॉक हो #}
+                {# आपको CSS के साथ इसे 'display: none;' रखना होगा और JS से 'display: block;' करना होगा #}
+                <button class="take-quiz-btn btn btn-primary mt-3" 
+                        id="take-quiz-btn-{{ video.id }}" 
+                        data-video-id="{{ video.id }}" 
+                        style="display: none;">
+                    Take Quiz
+                </button>
+
+                {# Quiz Form #}
+                {% if video.id in unlocked_video_ids or forloop.first %} {# पहला वीडियो हमेशा अनलॉक होता है #}
                 <form method="POST" action="{% url 'submit_quiz' video.id %}" class="quiz-form hidden" id="quiz-form-{{ video.id }}">
                     {% csrf_token %}
                     <h3>Quiz for {{ video.title }}</h3>
@@ -52,32 +64,31 @@
                         {% endfor %}
                     </div>
                     {% endfor %}
-                    <button type="submit">Submit Quiz</button>
+                    <button type="submit" class="btn btn-success mt-3">Submit Quiz</button>
                 </form>
+                {% else %}
+                    {# लॉक किए गए वीडियो के लिए क्विज़ फ़ॉर्म न दिखाएं #}
                 {% endif %}
 
+                {# Quiz Result #}
                 {% if video.id in result_map %}
-                <div class="quiz-result hidden" id="quiz-result-{{ video.id }}">
+                <div class="quiz-result mt-3" id="quiz-result-{{ video.id }}"> {# 'hidden' क्लास हटा दी गई, आप इसे CSS से नियंत्रित कर सकते हैं #}
                     <p><strong>Score:</strong> {{ result_map.video.id.score }}%</p>
-                    {% if result_map.video.id.score %}
+                    {% if result_map.video.id.passed %} {# 'passed' फ़ील्ड का उपयोग करें #}
                     <p style="color: green;">✅ Passed</p>
                     {% else %}
                     <p style="color: red;">❌ Not Passed</p>
                     {% endif %}
                 </div>
                 {% endif %}
+
             </div>
             {% endfor %}
         </div>
     </div>
 </div>
-{# content ब्लॉक के अंदर से product_videos.js को हटा दिया गया है। #}
-{# यह अब base.html के extra_scripts ब्लॉक में लोड होगा। #}
-{# <script src="{% static 'js/product_videos.js' %}"></script> -- MOVED TO base.html #}
 {% endblock %}
 
 {% block extra_scripts %}
-    {# product_videos.js को base.html के extra_scripts ब्लॉक में लोड करें। #}
-    {# यह YouTube API स्क्रिप्ट के लोड होने के बाद चलेगा। #}
     <script src="{% static 'js/product_videos.js' %}"></script>
 {% endblock %}
