@@ -8,11 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}"> {# Changed from base.css as per your provided code #}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
-    {# extra_head ब्लॉक अब केवल CSS या मेटा टैग के लिए है जो HTML के हेड में होने चाहिए। #}
-    {# YouTube API स्क्रिप्ट और अन्य JS अब बॉडी के अंत में लोड होंगे। #}
+    {# extra_head block for additional CSS or meta tags #}
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -20,9 +19,9 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="#">Crescent Lighting</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarNav" aria-controls="navbarNav"
-            aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -31,7 +30,7 @@
         <li class="nav-item"><a class="nav-link" href="{% url 'forms' %}">Joining Form</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'product_videos' 1 %}">Product Trainings</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'tour' %}">Tour Form</a></li>
-        <li class="nav-item"><a class="nav-link text-danger" href="{% url 'about' %}">About Us</a></li> {# Adjusted to match other nav items #}
+        <li class="nav-item"><a class="nav-link text-danger" href="{% url 'about' %}">About Us</a></li>
         <li class="nav-item"><a class="nav-link text-danger" href="{% url 'login' %}">Logout</a></li>
       </ul>
     </div>
@@ -44,14 +43,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-{# home.js को यहाँ से हटा दिया गया है क्योंकि यह अब product_videos.js के साथ असंगत है। #}
-{# यदि इसकी कार्यक्षमता की आवश्यकता है, तो इसे product_videos.js में एकीकृत करना होगा। #}
-{# <script src="{% static 'js/home.js' %}"></script> #}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-<script src="https://www.youtube.com/iframe_api"></script> {# <--- यहाँ बदलाव है: https://www.youtube.com/iframe_api को https://www.youtube.com/iframe_api में बदल दिया गया है #}
+<script src="{% static 'js/base.js' %}"></script>
 
-{# extra_scripts ब्लॉक अन्य पेज-विशिष्ट JavaScript फ़ाइलों को लोड करने के लिए है। #}
-{# product_videos.js यहाँ से लोड होगा जब product.html इस ब्लॉक का उपयोग करेगा। #}
+{# Corrected YouTube API script if needed, otherwise remove #}
+<script src="https://www.youtube.com/iframe_api"></script> {# Corrected URL, if you need YouTube API #}
+
+{# extra_scripts block for other page-specific JavaScript files #}
 {% block extra_scripts %}{% endblock %}
+
 </body>
 </html>
