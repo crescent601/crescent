@@ -109,7 +109,10 @@ class ProductVideo(models.Model):
         if video_id:
             # *** IMPORTANT: Added &enablejsapi=1 for JavaScript control ***
             # *** Also, considering the common YouTube embed domain pattern ***
-            return f"youtube.com/24{video_id}?rel=0&enablejsapi=1"
+            return f"http://www.youtube.com/embed/{video_id}?rel=0&enablejsapi=1"
+            # NOTE: If "youtube.com/24" was specifically working,
+            # you might need to revert to that, but the standard embed URL is usually better.
+            # return f"youtube.com/24{video_id}?rel=0&enablejsapi=1"
         return None
 
 

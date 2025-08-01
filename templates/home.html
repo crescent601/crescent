@@ -1,40 +1,51 @@
 {% extends 'base.html' %}
-{% block title %}Home - Crescent Lighting{% endblock %}
+{% load static %}
 
 {% block content %}
+<div class="container mt-4">
+    {# ... (आपके मौजूदा मैसेज डिस्प्ले लॉजिक) ... #}
 
-<div class="custom-slider">
-    <div class="slides">
-        {% for post in all_posts_list %}
-            {# Check if Scroll_image_url exists and is not empty #}
-            {% if post.Scroll_image_url %}
-                <div class="slide {% if forloop.first %}active{% endif %}" style="background-image: url('{{ post.Scroll_image_url }}');">
-                    <div class="caption animate-text">{{ post.text|truncatewords:15 }}</div>
+    <h2 class="mt-5 mb-3">Our Trainings</h2>
+    <div class="row">
+        {% for category in all_categories %}
+            {# Check if the category is locked based on the passed context #}
+            {% with is_locked=category_lock_status|get_item:category.id %} {# Make sure get_item filter is loaded, or use dictionary.get(key) #}
+            <div class="col-md-4 mb-4">
+                <div class="card category-card {% if is_locked %}locked{% endif %}">
+                    {% if is_locked %}
+                        <div class="locked-overlay-category">
+                            <i class="fas fa-lock me-2"></i> Locked - Complete previous categories
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text">
+                            {% comment %}
+                                Optionally show training description here if available
+                                {% if category.producttraining_set.first.description %}
+                                    {{ category.producttraining_set.first.description|truncatechars:100 }}
+                                {% endif %}
+                            {% endcomment %}
+                            This category contains various training videos.
+                        </p>
+                        {# Link to product videos - disabled if locked #}
+                        <a href="{% url 'product_videos' category.producttraining_set.first.id %}" 
+                           class="btn btn-primary {% if is_locked %}disabled{% endif %}" 
+                           {% if is_locked %}aria-disabled="true" tabindex="-1"{% endif %}>
+                            View Trainings
+                        </a>
+                    </div>
                 </div>
-            {% endif %}
+            </div>
+            {% endwith %}
         {% endfor %}
     </div>
-    <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
-    <button class="next" onclick="moveSlide(1)">&#10095;</button>
+
+    {# ... (आपके मौजूदा पोस्ट्स लिस्टिंग, यदि कोई हो) ... #}
+
 </div>
+{% endblock %}
 
-<h2 class="text-center my-4">Product Trainings</h2>
-<div class="product-training-section">
-    {% for training in trainings %}
-        <div class="training-card cat-{{ training.category.id }}">
-
-            <p><strong>Category:</strong> {{ training.category.name }}</p>
-            <p>{{ training.description }}</p>
-            {% if training.featured_image_url %} {# <--- यहाँ बदलाव है: अब featured_image_url का उपयोग करें #}
-                <a href="{% url 'product_videos' training.id %}">
-                    <img src="{{ training.featured_image_url }}" alt="{{ training.title }}"> {# <--- यहाँ भी बदलाव है: .url हटा दें #}
-                </a>
-            {% endif %}
-            <p><em>Created at: {{ training.created_at }}</em></p>
-        </div>
-    {% empty %}
-        <p>No product trainings available.</p>
-    {% endfor %}
-</div>
-
+{% block extra_js %}
+{# ... (आपके मौजूदा JavaScript लिंक्स) ... #}
 {% endblock %}

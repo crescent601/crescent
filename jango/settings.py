@@ -25,10 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-q=3!^c^x89)^m)b!)rr!ub_&zo1udcobfz8kgaj!br8swkxyl5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'      
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['crescent-app.onrender.com', '127.0.0.1', 'localhost']
-
 
 
 # Application definition
@@ -46,6 +45,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # WhiteNoise middleware is correctly placed here for production.
+    # For local development, it primarily needs the STATICFILES_STORAGE adjustment.
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -129,7 +130,15 @@ STATICFILES_DIRS=[
 ]
 MEDIA_ROOT = os.path.join(BASE_DIR,'static/images')
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# --- CRITICAL CHANGE FOR DEVELOPMENT ---
+# This line was causing the ModuleNotFoundError and 404 for static files in development.
+# We are changing it to Django's default StaticFilesStorage for local development.
+# For production deployment (e.g., on Render), you will revert this line to:
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage' # <--- THIS LINE IS NOW CORRECTED
+# --- END CRITICAL CHANGE ---
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -148,14 +157,14 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO', # या 'DEBUG' भी कर सकते हैं अगर बहुत ज्यादा verbose चाहिए
+            'level': 'INFO',
         },
-        'django.request': { # HTTP requests को लॉग करने के लिए
+        'django.request': {
             'handlers': ['console'],
-            'level': 'DEBUG', # DEBUG level पर सेट करें ताकि POST data भी दिखे
+            'level': 'DEBUG',
             'propagate': False,
         },
-        'django.db.backends': { # Database queries को लॉग करने के लिए (ज़रूरत पड़ने पर)
+        'django.db.backends': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
@@ -166,7 +175,3 @@ LOGGING = {
         'level': 'WARNING',
     }
 }
-# -------------------------------------------------------------
-# End of temporary LOGGING configuration
-# -------------------------------------------------------------
-

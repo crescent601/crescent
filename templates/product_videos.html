@@ -5,6 +5,7 @@
 <div class="container mt-4">
     <h2>{{ product_training.title }} Videos</h2>
 
+    {# --- Django Messages Display Logic --- #}
     {% if messages %}
         <div class="messages">
             {% for message in messages %}
@@ -12,6 +13,7 @@
             {% endfor %}
         </div>
     {% endif %}
+    {# --- End Django Messages Display Logic --- #}
 
     <div class="row">
         {% for video in videos %}
@@ -105,6 +107,6 @@
 {# Load the YouTube Iframe API script (if not already in base.html) #}
 {# It's recommended to load this once in base.html if used across multiple pages #}
 {# If it's already in base.html or a global script, you can remove this line here. #}
-<script async src="https://www.youtube.com/iframe_api"></script>
+<script async src="http://www.youtube.com/iframe_api"></script>
 <script src="{% static 'js/product_videos.js' %}"></script>
 {% endblock %}

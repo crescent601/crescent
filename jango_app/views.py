@@ -144,9 +144,47 @@ class HomePageView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        user = self.request.user
+        all_categories = Categories.objects.all().order_by('order')
+        
+        # Dictionary to store category lock status
+        category_lock_status = {}
+        
+        # Initially, assume the first category is unlocked
+        unlocked_this_category_now = True 
+        
+        for i, category in enumerate(all_categories):
+            if i == 0:
+                # First category is always unlocked
+                category_lock_status[category.id] = False # False means NOT locked
+                unlocked_this_category_now = True
+            else:
+                # For subsequent categories, check if the previous one was completed
+                prev_category = all_categories[i-1]
+                
+                # Check UserCategoryProgress for the previous category
+                user_prev_category_progress = UserCategoryProgress.objects.filter(
+                    user=user, 
+                    category=prev_category,
+                    completed=True
+                ).exists()
+
+                if user_prev_category_progress and unlocked_this_category_now:
+                    # If previous category was completed and we're in an unlocked chain
+                    category_lock_status[category.id] = False
+                    unlocked_this_category_now = True # Continue the unlocked chain
+                else:
+                    # Previous category not completed OR chain was broken
+                    category_lock_status[category.id] = True # True means LOCKED
+                    unlocked_this_category_now = False # Break the unlocked chain for subsequent categories
+
         context['trainings'] = ProductTraining.objects.filter(status='PUBLISH')
-        context['all_categories'] = Categories.objects.all()
+        context['all_categories'] = all_categories
+        context['category_lock_status'] = category_lock_status # Pass lock status to template
+        
         return context
+
 
 
 # ========== ABOUT PAGE ==========
@@ -303,7 +341,7 @@ def submit_quiz(request, video_id):
     questions = VideoQuestion.objects.filter(video=video)
     score = 0
     total_questions = questions.count() 
-    all_answers_correct = True # This flag is crucial
+    all_answers_correct = True 
 
     if request.method == 'POST':
         for question in questions:
@@ -317,7 +355,7 @@ def submit_quiz(request, video_id):
                         all_answers_correct = False
                 except VideoAnswer.DoesNotExist:
                     all_answers_correct = False 
-            else: # If a question is not answered, it's considered incorrect
+            else:
                 all_answers_correct = False
 
         percentage = (score / total_questions) * 100 if total_questions > 0 else 0
@@ -344,19 +382,45 @@ def submit_quiz(request, video_id):
             if next_video:
                 UserVideoUnlock.objects.get_or_create(user=request.user, video=next_video)
             else:
-                try:
-                    UserCategoryProgress.objects.get_or_create(
-                        user=request.user,
-                        category=video.product_training.category
-                    )
-                    messages.info(request, 'You have completed all videos in this training category!')
-                except AttributeError:
-                    messages.warning(request, 'All videos completed, but category progress could not be updated (category missing).')
+                # This is the last video in the current ProductTraining.
+                # Now, check if all videos in this ProductTraining are passed.
+                # If yes, mark the associated Category as completed for the user.
+                
+                # Get all videos for the current product training
+                all_training_videos = ProductVideo.objects.filter(
+                    product_training=video.product_training
+                ).order_by('order')
+                
+                all_videos_in_training_passed = True
+                for tr_video in all_training_videos:
+                    try:
+                        tr_video_result = UserVideoQuizResult.objects.get(user=request.user, video=tr_video)
+                        if not tr_video_result.passed:
+                            all_videos_in_training_passed = False
+                            break
+                    except UserVideoQuizResult.DoesNotExist:
+                        all_videos_in_training_passed = False
+                        break
+                
+                if all_videos_in_training_passed:
+                    try:
+                        category = video.product_training.category
+                        UserCategoryProgress.objects.update_or_create(
+                            user=request.user,
+                            category=category,
+                            defaults={'completed': True}
+                        )
+                        messages.info(request, f'You have completed the entire "{category.name}" training category!')
+                    except AttributeError:
+                        messages.warning(request, 'All videos completed, but category progress could not be updated (category missing).')
+                else:
+                    messages.info(request, 'You have completed all videos in this training! (Still needs previous quizzes to be passed)')
+
 
         else:
             messages.error(request, 'Incorrect answers. Please review the video and try the quiz again.')
 
         return redirect('product_videos', product_id=video.product_training.id)
-    # If not POST, just render the page (though submit_quiz expects POST usually)
+    
     messages.error(request, 'Invalid request method for quiz submission.')
-    return redirect('product_videos', product_id=video.product_training.id) # Redirect back to video page on GET
+    return redirect('product_videos', product_id=video.product_training.id)

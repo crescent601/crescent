@@ -130,17 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // YouTube Iframe API script loading (ensure it's only done once)
-    // If you already have this in your base.html or another global script, you can remove this block
-    // as onYouTubeIframeAPIReady is already firing.
-    /*
-    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    }
-    */
+    // Removed the YouTube Iframe API script loading from here,
+    // as it's typically loaded once in base.html or the product_videos.html head/extra_js block.
+    // If it's not being loaded elsewhere, you might need to re-add it carefully.
 });
 
 window.onerror = function(message, source, lineno, colno, error) {

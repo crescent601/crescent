@@ -128,6 +128,7 @@ body {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
 /* Existing CSS in your home.css file */
 /* ... */
 
@@ -142,7 +143,8 @@ body {
     /* Add any default video player container styles here (e.g., aspect ratio) */
 }
 
-.video-player-container[style*="grayscale"] { /* Targets the inline style added by JS/Django */
+/* This targets the inline style added by JavaScript/Django for locked videos */
+.video-player-container[style*="grayscale"] { 
     pointer-events: none; /* Disable clicks on the iframe */
 }
 
