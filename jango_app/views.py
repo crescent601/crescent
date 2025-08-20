@@ -424,3 +424,8 @@ def submit_quiz(request, video_id):
     
     messages.error(request, 'Invalid request method for quiz submission.')
     return redirect('product_videos', product_id=video.product_training.id)
+
+def policy_list(request):
+    user_designation = request.user.profile.designation
+    policies = Policy.objects.filter(designation=user_designation) # type: ignore
+    return render(request, 'policies.html', {'policies': policies})

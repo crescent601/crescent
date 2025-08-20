@@ -1,14 +1,25 @@
 from django import forms
-from django.contrib.auth.models import User
-from .models import Profile, JoiningApplication, QualificationProof , TourPlan , UserTerritory , VideoQuestion , VideoAnswer
+from django.contrib.auth.forms import UserCreationForm   # ✅ ye import missing tha
+from django.contrib.auth import get_user_model
+from .models import Profile, JoiningApplication, QualificationProof, TourPlan, UserTerritory, VideoQuestion, VideoAnswer
 
-class UserRegistrationForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
+User = get_user_model()
+
+
+class UserRegistrationForm(UserCreationForm):  # type: ignore
     role = forms.ChoiceField(choices=Profile.ROLE_CHOICES)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'role']
+        fields = ['username', 'email', 'password1', 'password2', 'role']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            Profile.objects.create(user=user, role=self.cleaned_data['role'])
+        return user
+
 
 class JoiningForm(forms.ModelForm):
     date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
@@ -108,12 +119,14 @@ class JoiningForm(forms.ModelForm):
             'signature': 'Signature',
         }
 
+
 class QualificationProofForm(forms.ModelForm):
     file = forms.FileField(widget=forms.ClearableFileInput(), required=False)
 
     class Meta:
         model = QualificationProof
         fields = ['file']
+
 
 class TourPlanForm(forms.ModelForm):
     class Meta:
@@ -123,15 +136,16 @@ class TourPlanForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-
         if user:
             user_territories = UserTerritory.objects.filter(user=user)
             self.fields['territory'].queryset = [ut.territory for ut in user_territories]
+
 
 class VideoQuestionForm(forms.ModelForm):
     class Meta:
         model = VideoQuestion
         fields = ['product_training', 'video', 'question_text']
+
 
 class VideoAnswerForm(forms.Form):
     option1 = forms.CharField(max_length=300)
@@ -144,6 +158,3 @@ class VideoAnswerForm(forms.Form):
         ('option3', 'Option 3'),
         ('option4', 'Option 4'),
     ], widget=forms.RadioSelect)
-
-
-

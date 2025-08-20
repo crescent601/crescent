@@ -35,15 +35,24 @@ class Territory(models.Model):
 
 
 # User Profile with roles and multiple territories
+class Designation(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Profile(models.Model):
-    ROLE_CHOICES = (
-        ('student', 'Student'),
-        ('teacher', 'Teacher'),
-    )
+    ROLE_CHOICES = [
+        ('Admin', 'Admin'),
+        ('Manager', 'Manager'),
+        ('Employee', 'Employee'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='Employee')
+    territories = models.ManyToManyField('Territory', blank=True) 
     sheet_id = models.CharField(max_length=200, blank=True, null=True)
-    territories = models.ManyToManyField(Territory, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
@@ -227,3 +236,12 @@ class UserVideoUnlock(models.Model):
 
     def __str__(self):
         return f"{self.user.username} unlocked {self.video.title}"
+
+class Policy(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.designation})"
